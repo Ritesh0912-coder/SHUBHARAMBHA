@@ -1,0 +1,37 @@
+@import "tailwindcss";
+
+:root {
+  --background: #fdfdfb;
+  --foreground: #2d3436;
+  --primary: #2d5a27;
+  --primary-hover: #24481f;
+  --accent: #4aae42;
+  --brown: #5d4037;
+  --soft-white: #fafafa;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-accent: var(--accent);
+  --color-brown: var(--brown);
+  --color-soft-white: var(--soft-white);
+  
+  --font-sans: "Outfit", var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+.rural-card {
+  @apply bg-white rounded-2xl shadow-sm border border-stone-100 overflow-hidden transition-all duration-300;
+}
+
+.btn-whatsapp {
+  @apply bg-[#25D366] text-white px-6 py-3 rounded-full font-bold flex items-center gap-2 hover:bg-[#128C7E] transition-all;
+}
