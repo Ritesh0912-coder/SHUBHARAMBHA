@@ -91,7 +91,7 @@ export default function AdminPage() {
 
     const handleLogin = (e: React.FormEvent) => {
         e.preventDefault();
-        if (password === "shubharambha2025") {
+        if (password === "gaurai2025") {
             setIsLoggedIn(true);
         } else {
             alert("Invalid credentials.");
@@ -135,7 +135,7 @@ export default function AdminPage() {
             <aside className="w-full md:w-64 bg-stone-900 text-white p-8 md:min-h-screen">
                 <div className="flex items-center gap-3 mb-12">
                     <div className="w-8 h-8 bg-primary rounded-lg" />
-                    <span className="font-bold tracking-tight">SHUBHARAMBHA Admin</span>
+                    <span className="font-bold tracking-tight text-xs">GAURAI AGRO Admin</span>
                 </div>
                 <nav className="space-y-2">
                     <button

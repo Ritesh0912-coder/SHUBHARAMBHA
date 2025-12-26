@@ -3,7 +3,7 @@ import { FaWhatsapp } from "react-icons/fa";
 
 export default function WhatsAppButton() {
     const phoneNumber = "917798693233"; // Updated to Santosh Shinde's number
-    const message = "नमस्कार 🙏, मला शुभारंभ कंपनीच्या उत्पादनांबद्दल माहिती हवी आहे.";
+    const message = "नमस्कार 🙏, मला श्री गौराई ॲग्रो कंपनीच्या उत्पादनांबद्दल माहिती हवी आहे.";
     const encodedMessage = encodeURIComponent(message);
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
 

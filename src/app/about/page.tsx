@@ -28,11 +28,11 @@ export default function AboutPage() {
                     <div className="max-w-3xl">
                         <span className="text-primary font-bold tracking-widest uppercase text-sm mb-4 block">आमची ओळख | About Us</span>
                         <h1 className="text-4xl md:text-6xl font-extrabold text-stone-900 mb-8 leading-tight font-marathi">
-                            शुभारंभ – <br />
-                            <span className="text-primary italic">Gaurai Agro Consultancy</span>
+                            श्री गौराई ॲग्रो – <br />
+                            <span className="text-primary italic text-3xl md:text-4xl">Solutions & Consultancy</span>
                         </h1>
                         <p className="text-xl text-stone-600 leading-relaxed mb-6">
-                            पुणे आणि बारामती परिसरातील शेतकऱ्यांच्या समस्यांना जैविक उत्तर देण्यासाठी आम्ही काम करतो. संतोष शिंदे यांच्या मार्गदर्शनाखाली शेकडो डाळिंब व पेरूच्या बागा आज यशस्वीरीत्या बहरत आहेत.
+                            पुणे आणि बारामती परिसरातील शेतकऱ्यांच्या समस्यांना जैविक उत्तर देण्यासाठी आम्ही 'श्री गौराई ॲग्रो' (Shree Gaurai Agro Solutions & Consultancy) तर्फे काम करतो. संतोष शिंदे यांच्या मार्गदर्शनाखाली शेकडो डाळिंब व पेरूच्या बागा आज यशस्वीरीत्या बहरत आहेत.
                         </p>
                     </div>
                 </div>

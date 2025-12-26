@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { FaWhatsapp, FaEnvelope, FaMapMarkerAlt, FaClock } from "react-icons/fa";
 
 export default function Footer() {
@@ -8,9 +9,19 @@ export default function Footer() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
                     {/* Brand */}
                     <div className="lg:col-span-1">
-                        <h3 className="text-2xl font-bold text-primary mb-4">शुभारंभ</h3>
+                        <div className="flex items-center gap-3 mb-6">
+                            <div className="relative w-12 h-12 rounded-full overflow-hidden border border-stone-200">
+                                <Image
+                                    src="/logo.jpg"
+                                    alt="Shree Gaurai Agro Logo"
+                                    fill
+                                    className="object-cover"
+                                />
+                            </div>
+                            <h3 className="text-xl font-bold text-primary leading-tight">श्री गौराई ॲग्रो</h3>
+                        </div>
                         <p className="text-stone-600 mb-6 leading-relaxed">
-                            Gaurai Agro Consultancy तर्फे शेतकऱ्यांसाठी विश्वासार्ह जैविक उपक्रम. "एक चांगली सुरुवात" - समृद्धीकडे.
+                            Shree Gaurai Agro Solutions & Consultancy तर्फे शेतकऱ्यांसाठी विश्वासार्ह जैविक उपक्रम आणि मार्गदर्शन.
                         </p>
                         <div className="flex items-center gap-2 text-stone-400 font-bold text-sm tracking-widest uppercase">
                             <span className="w-8 h-px bg-stone-300"></span>
@@ -54,7 +65,7 @@ export default function Footer() {
                 </div>
 
                 <div className="pt-8 border-t border-stone-200 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-stone-400">
-                    <p>© {new Date().getFullYear()} Gaurai Agro Consultancy - SHUBHARAMBHA. सर्व हक्क राखीव.</p>
+                    <p>© {new Date().getFullYear()} Shree Gaurai Agro Solutions & Consultancy. सर्व हक्क राखीव.</p>
                     <p className="font-medium text-stone-500">पुणे, इंदापूर, बारामती क्षेत्रासाठी समर्पित.</p>
                 </div>
             </div>

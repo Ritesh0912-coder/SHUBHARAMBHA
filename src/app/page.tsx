@@ -32,7 +32,7 @@ export default function Home() {
   const staticProducts = [
     {
       id: "peru-kit",
-      name: "शुभारंभ पेरू स्पेशल कीट",
+      name: "श्री गौराई ॲग्रो पेरू स्पेशल कीट",
       price: "४-डोस सिस्टीम",
       image: "/peru-kit-card.png",
       benefits: [
@@ -117,8 +117,11 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-r from-black/75 to-transparent" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="max-w-3xl text-white">
-            <div className="inline-block bg-accent text-white px-4 py-1 rounded-full text-sm font-bold mb-6 animate-pulse">
-              जीवरक्षक जैविक खते - शुभारंभ
+            <div className="inline-flex items-center gap-3 bg-white/10 backdrop-blur-md border border-white/20 px-4 py-2 rounded-full mb-6">
+              <div className="relative w-8 h-8 rounded-full overflow-hidden">
+                <Image src="/logo.jpg" alt="Logo" fill className="object-cover" />
+              </div>
+              <span className="text-sm font-bold tracking-wide">श्री गौराई ॲग्रो</span>
             </div>
             <h1 className="text-5xl md:text-7xl font-extrabold mb-6 leading-tight font-marathi">
               शेतकऱ्यांसाठी <br />
@@ -127,11 +130,11 @@ export default function Home() {
             </h1>
             <p className="text-xl md:text-2xl mb-10 text-stone-200 font-medium leading-relaxed border-l-4 border-accent pl-6">
               माती सुधारणा | रोग नियंत्रण | उत्पादन वाढ <br />
-              <span className="text-lg opacity-80">पुणे, इंदापूर, बारामती परिसरातील शेतकऱ्यांसाठी समर्पित.</span>
+              <span className="text-lg opacity-80">पुणे, इंदापूर, बारामती क्षेत्रासाठी 'श्री गौराई ॲग्रो' ची साथ.</span>
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <a
-                href="https://wa.me/917798693233?text=नमस्कार 🙏%0Aमला शुभारंभ उत्पादनांबद्दल माहिती हवी आहे."
+                href="https://wa.me/917798693233?text=नमस्कार 🙏%0Aमला श्री गौराई ॲग्रो उत्पादनांबद्दल माहिती हवी आहे."
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-whatsapp text-lg px-8 py-4 justify-center"
@@ -194,41 +197,48 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Crop Results Section - New Photos */}
+      {/* Crop Results Section - Real Success Stories */}
       <section className="py-24 bg-stone-50 px-4">
         <div className="max-w-7xl mx-auto text-center mb-16">
-          <h2 className="text-4xl font-bold text-stone-900 mb-4 font-marathi">प्रत्यक्ष परिणाम (Impact)</h2>
-          <p className="text-xl text-stone-600">शुभारंभा उत्पादनांचा वापर केलेल्या बागांची प्रगती.</p>
+          <h2 className="text-4xl font-bold text-stone-900 mb-4 font-marathi">शेतकऱ्यांचे यश (Real Success)</h2>
+          <p className="text-xl text-stone-600">आमच्या मार्गदर्शनाखाली बहरलेल्या काही बागांचे दर्शन.</p>
           <div className="h-1.5 w-24 bg-primary mx-auto rounded-full mt-4" />
         </div>
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="group">
-            <div className="relative h-[450px] rounded-[2.5rem] overflow-hidden mb-6 shadow-xl">
-              <Image src="/dalimb-impact.png" alt="Dalimb Impact" fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-              <div className="absolute bottom-6 left-6 text-white">
-                <h3 className="text-2xl font-bold font-marathi">भरघोस डाळिंब</h3>
-                <p className="text-stone-300">फळांची गुणवत्ता आणि चकाकी</p>
+            <div className="relative h-[400px] rounded-[2.5rem] overflow-hidden mb-6 shadow-xl">
+              <Image src="/impact-full-tree.png" alt="Healthy Pomegranate Tree" fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
+              <div className="absolute inset-x-6 bottom-6 bg-white/90 backdrop-blur-md p-4 rounded-3xl">
+                <h3 className="text-lg font-bold text-stone-900 font-marathi">जोमदार फळधारणा</h3>
+                <p className="text-stone-500 text-sm">पूर्ण बागेत एकसारखा आकार</p>
               </div>
             </div>
           </div>
           <div className="group">
-            <div className="relative h-[450px] rounded-[2.5rem] overflow-hidden mb-6 shadow-xl">
-              <Image src="/peru-impact.png" alt="Peru Impact" fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-              <div className="absolute bottom-6 left-6 text-white">
-                <h3 className="text-2xl font-bold font-marathi">निरोगी पेरू बाग</h3>
-                <p className="text-stone-300">जोमदार वाढ आणि फळधारणा</p>
+            <div className="relative h-[400px] rounded-[2.5rem] overflow-hidden mb-6 shadow-xl">
+              <Image src="/impact-close.png" alt="Close up Pomegranate" fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
+              <div className="absolute inset-x-6 bottom-6 bg-white/90 backdrop-blur-md p-4 rounded-3xl">
+                <h3 className="text-lg font-bold text-stone-900 font-marathi">नैसर्गिक चकाकी</h3>
+                <p className="text-stone-500 text-sm">कोणतेही रासायनिक डाग नाहीत</p>
+              </div>
+            </div>
+          </div>
+          <div className="group">
+            <div className="relative h-[400px] rounded-[2.5rem] overflow-hidden mb-6 shadow-xl">
+              <Image src="/impact-seeds.png" alt="Pomegranate Seeds Impact" fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
+              <div className="absolute inset-x-6 bottom-6 bg-white/90 backdrop-blur-md p-4 rounded-3xl">
+                <h3 className="text-lg font-bold text-stone-900 font-marathi">उत्तम गुणवत्ता</h3>
+                <p className="text-stone-500 text-sm">गडद लाल रंग आणि गोडवा</p>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Why Shubharambha */}
+      {/* Why Shree Gaurai Agro */}
       <section className="py-24 bg-white px-4">
         <div className="max-w-7xl mx-auto text-center mb-16">
-          <h2 className="text-4xl font-bold text-stone-900 mb-4 font-marathi">"शुभारंभ" का निवडावे?</h2>
+          <h2 className="text-4xl font-bold text-stone-900 mb-4 font-marathi">"श्री गौराई ॲग्रो" का निवडावे?</h2>
           <div className="h-1.5 w-24 bg-primary mx-auto rounded-full mt-4" />
         </div>
         <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -293,7 +303,7 @@ export default function Home() {
             तुमच्या शेतीसाठी आजच तज्ञ मार्गदर्शन आणि कोअर जैविक उत्पादने मिळवा.
           </p>
           <a
-            href="https://wa.me/917798693233?text=नमस्कार 🙏%0Aमला शुभारंभ कंपनीच्या उत्पादनांबद्दल माहिती हवी आहे."
+            href="https://wa.me/917798693233?text=नमस्कार 🙏%0Aमला श्री गौराई ॲग्रो उत्पादनांबद्दल माहिती हवी आहे."
             target="_blank"
             rel="noopener noreferrer"
             className="btn-whatsapp text-xl px-12 py-5 justify-center inline-flex"

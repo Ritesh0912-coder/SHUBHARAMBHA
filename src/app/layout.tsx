@@ -13,8 +13,15 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "SHUBHARAMBHA - Healthy Soil, Prosperous Crops",
-  description: "Organic & Bio Fertilizers Trusted by Maharashtra Farmers. Made in Pune.",
+  title: "Shree Gaurai Agro Solutions And Consultancy - Trusted Bio Fertilizers",
+  description: "Organic & Bio Fertilizers Trusted by Maharashtra Farmers. Committed to Pune, Indapur, and Baramati region.",
+  icons: {
+    icon: [
+      { url: "/favicon.jpg" },
+      { url: "/logo.jpg" },
+    ],
+    apple: "/logo.jpg",
+  }
 };
 
 export default function RootLayout({

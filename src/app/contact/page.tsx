@@ -96,7 +96,7 @@ export default function ContactPage() {
                                 <FaWhatsapp size={48} />
                             </div>
                             <h2 className="text-4xl md:text-6xl font-extrabold text-stone-900 mb-8 leading-tight font-marathi">
-                                शुभारंभ कंपनीचे <br />
+                                श्री गौराई ॲग्रो चे <br />
                                 <span className="text-primary italic">थेट WhatsApp</span> <br />
                                 द्वारे मार्गदर्शन
                             </h2>

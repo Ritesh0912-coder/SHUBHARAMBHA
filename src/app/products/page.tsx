@@ -122,7 +122,7 @@ export default function ProductsPage() {
 
     const getWhatsappUrl = (productName: string) => {
         const msg = `नमस्कार,
-मला शुभारंभ कंपनीचे उत्पादन घ्यायचे आहे.
+मला श्री गौराई ॲग्रो कंपनीचे उत्पादन घ्यायचे आहे.
 
 उत्पादन नाव: ${productName}
 पिकाचे नाव: 
@@ -138,7 +138,7 @@ export default function ProductsPage() {
             {/* Header */}
             <section className="bg-primary pt-24 pb-16 px-4 text-white text-center relative">
                 <div className="max-w-4xl mx-auto">
-                    <h1 className="text-4xl md:text-5xl font-extrabold mb-4 font-marathi tracking-tight">शुभारंभ उत्पादन प्रगती (Products & Usage)</h1>
+                    <h1 className="text-4xl md:text-5xl font-extrabold mb-4 font-marathi tracking-tight">उत्पादन प्रगती - श्री गौराई ॲग्रो</h1>
                     <p className="text-xl text-stone-200 opacity-90 font-medium italic">"योग्य नियोजन, शाश्वत उत्पादन."</p>
                 </div>
             </section>
@@ -149,7 +149,7 @@ export default function ProductsPage() {
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
                         <div>
                             <div className="inline-block bg-accent/10 text-accent px-4 py-1 rounded-full text-sm font-bold mb-6">Flagship Solution</div>
-                            <h2 className="text-4xl font-bold text-stone-900 mb-6 font-marathi">शुभारंभ पेरू स्पेशल कीट (४-डोस नियोजन)</h2>
+                            <h2 className="text-4xl font-bold text-stone-900 mb-6 font-marathi">श्री गौराई ॲग्रो पेरू स्पेशल कीट</h2>
                             <p className="text-lg text-stone-600 mb-8 leading-relaxed">
                                 आता पेरूवरील प्रत्येक रोगासाठी वेगळे औषध खरेदी करण्याची गरज नाही. आमचे हे कीट ४ टप्प्यात संपूर्ण बागेचे आरोग्य सुधारते.
                             </p>
