@@ -26,9 +26,9 @@ export default function AdminPage() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [password, setPassword] = useState("12345");
     const [view, setView] = useState<"overview" | "products" | "inquiries">("overview");
-    const [products, setProducts] = useState<Product[]>([]);
-    const [inquiries, setInquiries] = useState<Inquiry[]>([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [deletingId, setDeletingId] = useState<string | null>(null);
+    const [error, setError] = useState<string | null>(null);
 
     // Form states
     const [isAddingProduct, setIsAddingProduct] = useState(false);
@@ -48,19 +48,52 @@ export default function AdminPage() {
     }, [isLoggedIn]);
 
     const fetchProducts = async () => {
+        setIsLoading(true);
+        setError(null);
         try {
             const res = await fetch("/api/products");
             const data = await res.json();
-            if (Array.isArray(data)) setProducts(data);
-        } catch (e) { console.error(e); }
+            if (Array.isArray(data)) {
+                setProducts(data);
+                if (data.length === 0) {
+                    // Check if fallback is happening silently
+                    console.log("No products returned from API");
+                }
+            } else {
+                setError("Failed to parse products.");
+            }
+        } catch (e) {
+            console.error(e);
+            setError("Database connection failed. Please check your Atlas IP whitelist.");
+        }
+        setIsLoading(false);
     };
 
     const fetchInquiries = async () => {
-        // Mock data for now until API is ready
-        setInquiries([
-            { id: "1", farmerName: "Rahul Patil", phone: "7798693233", crop: "Peru", district: "Baramati", product: "Peru Special Kit", status: "NEW", createdAt: new Date().toISOString() },
-            { id: "2", farmerName: "Sanjay Deshmukh", phone: "9876543210", crop: "Dalimb", district: "Indapur", product: "Nemato Super Killer", status: "COMPLETED", createdAt: new Date().toISOString() }
-        ]);
+        try {
+            const res = await fetch("/api/inquiries");
+            const data = await res.json();
+            if (Array.isArray(data)) setInquiries(data);
+        } catch (e) { console.error(e); }
+    };
+
+    const handleUpdateInquiryStatus = async (id: string, status: string) => {
+        try {
+            const res = await fetch(`/api/inquiries/${id}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ status })
+            });
+            if (res.ok) fetchInquiries();
+        } catch (e) { console.error(e); }
+    };
+
+    const handleDeleteInquiry = async (id: string) => {
+        if (!confirm("Remove this inquiry?")) return;
+        try {
+            const res = await fetch(`/api/inquiries/${id}`, { method: "DELETE" });
+            if (res.ok) fetchInquiries();
+        } catch (e) { console.error(e); }
     };
 
     const handleAddProduct = async (e: React.FormEvent) => {
@@ -82,11 +115,21 @@ export default function AdminPage() {
     };
 
     const handleDeleteProduct = async (id: string) => {
-        if (!confirm("Are you sure?")) return;
+        if (!confirm("Are you sure you want to delete this product?")) return;
+        setDeletingId(id);
         try {
             const res = await fetch(`/api/products/${id}`, { method: "DELETE" });
-            if (res.ok) fetchProducts();
-        } catch (e) { console.error(e); }
+            if (res.ok) {
+                await fetchProducts();
+            } else {
+                const err = await res.json();
+                alert(err.error || "Failed to delete.");
+            }
+        } catch (e) {
+            console.error(e);
+            alert("Network error while deleting.");
+        }
+        setDeletingId(null);
     };
 
     const handleLogin = (e: React.FormEvent) => {
@@ -244,21 +287,24 @@ export default function AdminPage() {
                                             onChange={e => setNewProduct({ ...newProduct, price: e.target.value })}
                                             required
                                         />
+                                        <textarea
+                                            placeholder="Product Benefits (One per line)
+Example:
+- Improves soil health
+- Boosts yield"
+                                            className="w-full p-4 bg-stone-50 rounded-xl border border-stone-100 focus:outline-none focus:border-primary min-h-[120px]"
+                                            value={newProduct.benefits.join('\n')}
+                                            onChange={e => setNewProduct({ ...newProduct, benefits: e.target.value.split('\n') })}
+                                            required
+                                        />
                                         <label className="flex items-center gap-2 text-sm font-bold text-stone-600">
                                             <input
                                                 type="checkbox"
                                                 checked={newProduct.isFeatured}
                                                 onChange={e => setNewProduct({ ...newProduct, isFeatured: e.target.checked })}
                                             />
-                                            Show on Home Page
+                                            Show on Home Page (Featured)
                                         </label>
-                                    </div>
-                                    <div className="space-y-4">
-                                        <textarea
-                                            placeholder="Benefits (One per line)"
-                                            className="w-full p-4 bg-stone-50 rounded-xl border border-stone-100 focus:outline-none focus:border-primary min-h-[120px]"
-                                            onBlur={e => setNewProduct({ ...newProduct, benefits: e.target.value.split('\n').filter(b => b.trim()) })}
-                                        />
                                         <div className="flex gap-4">
                                             <button
                                                 type="button"
@@ -280,21 +326,53 @@ export default function AdminPage() {
                             </div>
                         )}
 
+                        {error && (
+                            <div className="bg-red-50 text-red-600 p-6 rounded-2xl border border-red-100 mb-8 font-bold">
+                                {error}
+                            </div>
+                        )}
+
+                        {products.length === 0 && !isLoading && !error && (
+                            <div className="bg-stone-100 p-12 rounded-[2.5rem] text-center border-2 border-dashed border-stone-200">
+                                <FaBoxOpen className="mx-auto text-stone-300 mb-4" size={48} />
+                                <h3 className="text-xl font-bold text-stone-600 mb-2">No products found.</h3>
+                                <p className="text-stone-400">Add your first product to see it here.</p>
+                            </div>
+                        )}
+
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {products.map(product => (
-                                <div key={product.id} className="bg-white p-6 rounded-[2.5rem] border border-stone-100 shadow-sm relative group">
-                                    <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-all">
-                                        <button className="bg-stone-100 p-2 rounded-lg text-stone-600 hover:bg-stone-200"><FaEdit size={12} /></button>
-                                        <button onClick={() => handleDeleteProduct(product.id)} className="bg-red-50 p-2 rounded-lg text-red-500 hover:bg-red-100"><FaTrash size={12} /></button>
+                                <div key={product.id} className="bg-white p-6 rounded-[2.5rem] border border-stone-100 shadow-sm relative group hover:border-primary/20 transition-all">
+                                    <div className="absolute top-4 right-4 flex gap-2">
+                                        <button
+                                            className="bg-stone-100 p-2.5 rounded-xl text-stone-600 hover:bg-stone-200 transition-colors"
+                                            title="Edit Product"
+                                        >
+                                            <FaEdit size={14} />
+                                        </button>
+                                        <button
+                                            onClick={() => handleDeleteProduct(product.id)}
+                                            disabled={deletingId === product.id}
+                                            className="bg-red-50 p-2.5 rounded-xl text-red-500 hover:bg-red-500 hover:text-white transition-all disabled:opacity-50"
+                                            title="Delete Product"
+                                        >
+                                            {deletingId === product.id ? (
+                                                <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                            ) : (
+                                                <FaTrash size={14} />
+                                            )}
+                                        </button>
                                     </div>
                                     <div className="w-16 h-16 bg-stone-50 rounded-2xl flex items-center justify-center mb-4">
                                         <FaBoxOpen className="text-stone-300" size={24} />
                                     </div>
-                                    <h3 className="font-bold text-stone-900 mb-1">{product.name}</h3>
+                                    <h3 className="font-bold text-stone-900 mb-1 leading-tight pr-12">{product.name}</h3>
                                     <p className="text-primary font-bold text-sm mb-4">{product.price}</p>
                                     <div className="flex flex-wrap gap-2">
-                                        {product.isFeatured && <span className="text-[10px] bg-accent/10 text-accent font-bold px-2 py-1 rounded-full uppercase">Featured</span>}
-                                        <span className="text-[10px] bg-stone-100 text-stone-500 font-bold px-2 py-1 rounded-full uppercase">In Stock</span>
+                                        {product.isFeatured && (
+                                            <span className="text-[10px] bg-accent/10 text-accent font-bold px-2 py-1 rounded-full uppercase">Featured</span>
+                                        )}
+                                        <span className="text-[10px] bg-stone-100 text-stone-500 font-bold px-2 py-1 rounded-full uppercase">Live</span>
                                     </div>
                                 </div>
                             ))}
@@ -337,8 +415,20 @@ export default function AdminPage() {
                                                     >
                                                         <FaWhatsapp size={20} />
                                                     </a>
-                                                    <button className="text-stone-300 hover:text-green-500 transition-all"><FaCheck size={18} /></button>
-                                                    <button className="text-stone-300 hover:text-red-500 transition-all"><FaTimes size={18} /></button>
+                                                    <button
+                                                        onClick={() => handleUpdateInquiryStatus(inquiry.id, "COMPLETED")}
+                                                        className={`transition-all ${inquiry.status === "COMPLETED" ? "text-green-500" : "text-stone-300 hover:text-green-500"}`}
+                                                        title="Mark as Completed"
+                                                    >
+                                                        <FaCheck size={18} />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDeleteInquiry(inquiry.id)}
+                                                        className="text-stone-300 hover:text-red-500 transition-all"
+                                                        title="Delete Inquiry"
+                                                    >
+                                                        <FaTrash size={18} />
+                                                    </button>
                                                 </div>
                                             </td>
                                         </tr>
