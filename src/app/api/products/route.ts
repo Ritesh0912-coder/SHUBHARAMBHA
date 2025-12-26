@@ -9,10 +9,12 @@ export async function GET() {
             orderBy: { createdAt: "desc" },
         });
         return NextResponse.json(products);
-    } catch (error) {
-        // Return empty array on connection error to allow static fallback
-        console.warn("Database connection issue, using fallback mode:", error);
-        return NextResponse.json([]);
+    } catch (error: any) {
+        console.error("Database connection issue:", error);
+        return NextResponse.json(
+            { error: "Database connection failed: " + (error.message || "Unknown error") },
+            { status: 500 }
+        );
     }
 }
 

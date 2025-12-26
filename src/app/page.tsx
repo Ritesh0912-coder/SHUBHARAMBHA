@@ -8,28 +8,35 @@ import { GiFertilizerBag } from "react-icons/gi";
 
 export default function Home() {
   const [featuredProducts, setFeaturedProducts] = useState<any[]>([]);
+  const [coreProducts, setCoreProducts] = useState<any[]>([]);
 
   useEffect(() => {
     fetch("/api/products")
       .then(res => res.json())
       .then(data => {
-        if (Array.isArray(data)) {
-          const featured = data.filter(p => p.isFeatured).slice(0, 3);
-          if (featured.length > 0) {
-            setFeaturedProducts(featured);
-          } else {
-            // Fallback to static if no featured products in DB
-            setFeaturedProducts(staticProducts);
-          }
+        if (Array.isArray(data) && data.length > 0) {
+          const processed = data.map(p => ({
+            ...p,
+            tag: p.category || p.price || "Bio-Organic",
+            description: p.description || (p.benefits ? p.benefits[0] : "High quality bio-product."),
+            usage: p.usageMethod || p.usage || "तज्ञांच्या सल्ल्यानुसार वापरा.",
+            points: p.benefits || []
+          }));
+          setCoreProducts(processed);
+          setFeaturedProducts(processed.filter(p => p.isFeatured).slice(0, 3));
+        } else {
+          setCoreProducts(staticCoreProducts);
+          setFeaturedProducts(staticCoreProducts.slice(0, 3));
         }
       })
       .catch(err => {
         console.error("Home fetch error:", err);
-        setFeaturedProducts(staticProducts);
+        setCoreProducts(staticCoreProducts);
+        setFeaturedProducts(staticCoreProducts.slice(0, 3));
       });
   }, []);
 
-  const staticProducts = [
+  const staticCoreProducts = [
     {
       id: "peru-kit",
       name: "श्री गौराई ॲग्रो पेरू स्पेशल कीट",

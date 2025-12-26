@@ -7,6 +7,7 @@ import { GiFertilizerBag } from "react-icons/gi";
 interface Product {
     id: string;
     name: string;
+    price: string;
     description: string;
     benefits?: string[];
     points?: string[];
@@ -27,9 +28,10 @@ export default function ProductsPage() {
                 if (Array.isArray(data) && data.length > 0) {
                     setCoreProducts(data.map(p => ({
                         ...p,
-                        // Ensure both exist for rendering
-                        points: p.points || p.benefits || [],
-                        benefits: p.benefits || p.points || []
+                        points: p.benefits || [],
+                        tag: p.category || "Bio-Organic",
+                        usage: p.usageMethod || "तज्ञांच्या सल्ल्यानुसार वापरा.",
+                        description: p.description || "High quality bio-product."
                     })));
                 } else {
                     // Type-cast static data to ensure compatibility
@@ -222,7 +224,8 @@ export default function ProductsPage() {
                                     </div>
                                 </div>
                                 <div className="lg:w-3/5 flex flex-col">
-                                    <h3 className="text-3xl font-bold text-stone-900 mb-4 font-marathi leading-tight">{p.name}</h3>
+                                    <h3 className="text-3xl font-bold text-stone-900 mb-2 font-marathi leading-tight">{p.name}</h3>
+                                    <p className="text-primary font-bold text-2xl mb-6">Price: {p.price}</p>
                                     <p className="text-stone-500 text-lg mb-8 leading-relaxed italic border-l-2 border-primary/20 pl-6">
                                         {p.description}
                                     </p>

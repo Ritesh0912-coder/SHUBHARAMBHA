@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { FaLock, FaUserShield, FaChartLine, FaBoxOpen, FaUsers, FaPlus, FaTrash, FaEdit, FaCheck, FaTimes, FaWhatsapp } from "react-icons/fa";
 
 interface Product {
@@ -8,6 +9,9 @@ interface Product {
     price: string;
     image: string;
     benefits: string[];
+    description?: string;
+    usageMethod?: string;
+    category?: string;
     isFeatured: boolean;
 }
 
@@ -24,19 +28,27 @@ interface Inquiry {
 
 export default function AdminPage() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [password, setPassword] = useState("12345");
+    const [password, setPassword] = useState("gaurai2025");
     const [view, setView] = useState<"overview" | "products" | "inquiries">("overview");
+    const [products, setProducts] = useState<Product[]>([]);
+    const [inquiries, setInquiries] = useState<Inquiry[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [deletingId, setDeletingId] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
 
     // Form states
     const [isAddingProduct, setIsAddingProduct] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editingId, setEditingId] = useState<string | null>(null);
+    const [dragActive, setDragActive] = useState(false);
     const [newProduct, setNewProduct] = useState({
         name: "",
         price: "",
         image: "/peru-kit-card.png",
         benefits: [""],
+        description: "",
+        usageMethod: "",
+        category: "",
         isFeatured: false
     });
 
@@ -53,14 +65,14 @@ export default function AdminPage() {
         try {
             const res = await fetch("/api/products");
             const data = await res.json();
-            if (Array.isArray(data)) {
+
+            if (res.ok && Array.isArray(data)) {
                 setProducts(data);
                 if (data.length === 0) {
-                    // Check if fallback is happening silently
-                    console.log("No products returned from API");
+                    setError("Database is connected but currently empty. Add your first product below!");
                 }
             } else {
-                setError("Failed to parse products.");
+                setError(data.error || "Failed to fetch products from database.");
             }
         } catch (e) {
             console.error(e);
@@ -100,16 +112,198 @@ export default function AdminPage() {
         e.preventDefault();
         setIsLoading(true);
         try {
-            const res = await fetch("/api/products", {
-                method: "POST",
+            const url = isEditing && editingId ? `/api/products/${editingId}` : "/api/products";
+            const method = isEditing ? "PATCH" : "POST";
+
+            const res = await fetch(url, {
+                method: method,
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(newProduct)
             });
             if (res.ok) {
                 await fetchProducts();
                 setIsAddingProduct(false);
-                setNewProduct({ name: "", price: "", image: "/peru-kit-card.png", benefits: [""], isFeatured: false });
+                setIsEditing(false);
+                setEditingId(null);
+                setNewProduct({
+                    name: "",
+                    price: "",
+                    image: "/peru-kit-card.png",
+                    benefits: [""],
+                    description: "",
+                    usageMethod: "",
+                    category: "",
+                    isFeatured: false
+                });
+            } else {
+                const err = await res.json();
+                alert(err.error || "Failed to save product.");
             }
+        } catch (e) {
+            console.error(e);
+            alert("Network error while saving.");
+        }
+        setIsLoading(false);
+    };
+
+    const handleStartEdit = (product: Product) => {
+        setNewProduct({
+            name: product.name,
+            price: product.price,
+            image: product.image,
+            benefits: product.benefits,
+            description: product.description || "",
+            usageMethod: product.usageMethod || "",
+            category: product.category || "",
+            isFeatured: product.isFeatured
+        });
+        setEditingId(product.id);
+        setIsEditing(true);
+        setIsAddingProduct(true);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const handleFile = (file: File) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setNewProduct({ ...newProduct, image: reader.result as string });
+        };
+        reader.readAsDataURL(file);
+    };
+
+    const handleDrag = (e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (e.type === "dragenter" || e.type === "dragover") {
+            setDragActive(true);
+        } else if (e.type === "dragleave") {
+            setDragActive(false);
+        }
+    };
+
+    const handleDrop = (e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setDragActive(false);
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+            handleFile(e.dataTransfer.files[0]);
+        }
+    };
+
+    const handleSeedProducts = async () => {
+        setIsLoading(true);
+        const staticOnes = [
+            {
+                name: "श्री गौराई ॲग्रो पेरू स्पेशल कीट",
+                price: "₹४५००",
+                image: "/peru-kit-card.png",
+                benefits: ["पेरूच्या आकारासाठी ४ टप्प्यांचे नियोजन", "निमॅटोड आणि मुळकूजवर १००% मात"],
+                description: "आता पेरूवरील प्रत्येक रोगासाठी वेगळे औषध खरेदी करण्याची गरज नाही. आमचे हे कीट ४ टप्प्यात संपूर्ण बागेचे आरोग्य सुधारते.",
+                usageMethod: "तज्ञांच्या सल्ल्यानुसार ड्रीप किंवा पाण्यासोबत.",
+                category: "Special Kit",
+                isFeatured: true
+            },
+            {
+                name: "Nemato Super Killer (निमॅटो किलर)",
+                price: "₹८९९",
+                image: "/nemato.png",
+                benefits: ["मुळांवरील गाठी (Nematodes) नष्ट करते", "मुळकूज आणि कोमेजणे थांबवते"],
+                description: "मुळांवरील निमॅटोड (गाठी) आणि मर रोगावर अत्यंत प्रभावी जैविक सोल्यूशन. मातीतील हानिकारक सूक्ष्मजीव नष्ट करते.",
+                usageMethod: "२-३ मिली प्रती लिटर पाण्यातून ड्रेचिंग (Drenching) द्वारे.",
+                category: "Bio-Nematicide",
+                isFeatured: false
+            },
+            {
+                name: "K-Lifter (के-लिफ्टर)",
+                price: "₹७५०",
+                image: "/k-lifter.png",
+                benefits: ["फळांचा आकार आणि वजन वाढवते", "फळांना उत्तम रंग आणि गोडवा देते", "जमिनीतील स्थिर पालाश उपलब्ध करून देते"],
+                description: "फळांच्या उत्तम फुगवणीसाठी आणि चकाकीसाठी विशेषतः तयार केलेले पोटॅश मोबिलायझर.",
+                usageMethod: "२.५ मिली प्रती लिटर पाण्यातून फवारणी किंवा ड्रीप.",
+                category: "Potash Mobilizer",
+                isFeatured: true
+            },
+            {
+                name: "Bio-Magic (बायो-मॅजिक)",
+                price: "₹६५०",
+                image: "/bio-magic.png",
+                benefits: ["फुलगळ थांबवते आणि नवीन फुले आणते", "फुलांचे फळात रूपांतर करण्याचे प्रमाण वाढवते"],
+                description: "भरघोस फुलधारणेसाठी आणि कळ्या टिकवण्यासाठी नैसर्गिकरीत्या तयार केलेले बूस्टर.",
+                usageMethod: "२ मिली प्रती लिटर पाण्यातून फुलधारणेच्या आधी.",
+                category: "Flower Booster",
+                isFeatured: false
+            },
+            {
+                name: "Rootlix (रूटलिक्स्)",
+                price: "₹५९९",
+                image: "/product-group.png",
+                benefits: ["पांढऱ्या मुळ्यांची जोमदार वाढ", "अन्नद्रव्य शोषण्याची क्षमता वाढवते"],
+                description: "पांढऱ्या मुळ्यांच्या जोमदार वाढीसाठी विशेष पावडर. पिकाला जमिनीत घट्ट पकड मिळवून देते.",
+                usageMethod: "५०० ग्रॅम प्रती एकर ड्रीप किंवा पाण्यासोबत.",
+                category: "Root Developer",
+                isFeatured: false
+            },
+            {
+                name: "Agni-Vayu (अग्नी-वायू)",
+                price: "₹९५०",
+                image: "/product-group.png",
+                benefits: ["पांढरी माशी आणि तुडतुड्यांवर प्रभावी", "नैसर्गिक आणि बिनविषारी कीटकनाशक"],
+                description: "पांढरी माशी आणि इतर शोषक कीटकांसाठी अत्यंत प्रभावी नैसर्गिक कीटकनाशक. पिकाला अंतर्गत ताकद देते.",
+                usageMethod: "२ मिली प्रती लिटर पाण्यातून फवारणी.",
+                category: "Pest Control",
+                isFeatured: true
+            },
+            {
+                name: "Sudarshan (सुदर्शन)",
+                price: "₹१२००",
+                image: "/product-group.png",
+                benefits: ["पिकाच्या जोमदार वाढीसाठी विशेष टॉनिक", "फुलांची संख्या वाढवते"],
+                description: "पिकाच्या सर्वांगीण वाढीसाठी आणि अधिक फुटव्यांसाठी विशेष टॉनिक. हिरवेपणा आणि जोम कायम राखते.",
+                usageMethod: "१.५ मिली प्रती लिटर पाण्यातून फवारणी.",
+                category: "Growth Promoter",
+                isFeatured: false
+            },
+            {
+                name: "Bhoomi-Shakti (भूमी-शक्ती)",
+                price: "₹८५०",
+                image: "/product-group.png",
+                benefits: ["मातीचा पोत सुधारते", "सुपीकता आणि सेंद्रिय कर्ब वाढवते"],
+                description: "मातीचा पोत सुधारण्यासाठी आणि सुपीकता वाढवण्यासाठी सेंद्रिय खत बूस्टर.",
+                usageMethod: "५-१० किलो प्रती एकर जमिनीतून सेंद्रिय खतासोबत.",
+                category: "Soil Conditioner",
+                isFeatured: true
+            },
+            {
+                name: "Fruit-Fine (फ्रूट-फाईन)",
+                price: "₹७००",
+                image: "/product-group.png",
+                benefits: ["फळांना नैसर्गिक चकाकी देते", "रंग आणि वजन सुधारते"],
+                description: "फळांना नैसर्गिक चकाकी, रंग आणि वजन मिळवून देण्यासाठी विशेष फवारणी.",
+                usageMethod: "१ मिली प्रती लिटर पाण्यातून फळांच्या फुगवणी काळात.",
+                category: "Fruit Quality Booster",
+                isFeatured: false
+            },
+            {
+                name: "Gau-Shakti (गौ-शक्ती)",
+                price: "₹५५०",
+                image: "/product-group.png",
+                benefits: ["शेणखताचे विघटन जलद करते", "उपलब्ध नत्र वाढवते"],
+                description: "शेणखताची शक्ती वाढवून पिकांना उपलब्ध करून देणारे जैविक घटक.",
+                usageMethod: "१ लिटर प्रती एकर शेणखतासोबत किंवा पाण्यातून.",
+                category: "Manure Booster",
+                isFeatured: false
+            }
+        ];
+
+        try {
+            for (const p of staticOnes) {
+                await fetch("/api/products", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(p)
+                });
+            }
+            await fetchProducts();
         } catch (e) { console.error(e); }
         setIsLoading(false);
     };
@@ -173,12 +367,12 @@ export default function AdminPage() {
     }
 
     return (
-        <div className="min-h-screen bg-stone-50 flex flex-col md:flex-row">
+        <div className="min-h-screen bg-stone-50 flex flex-col md:flex-row font-sans">
             {/* Sidebar */}
             <aside className="w-full md:w-64 bg-stone-900 text-white p-8 md:min-h-screen">
                 <div className="flex items-center gap-3 mb-12">
                     <div className="w-8 h-8 bg-primary rounded-lg" />
-                    <span className="font-bold tracking-tight text-xs">GAURAI AGRO Admin</span>
+                    <span className="font-bold tracking-tight text-xs uppercase">GAURAI AGRO Admin</span>
                 </div>
                 <nav className="space-y-2">
                     <button
@@ -241,7 +435,7 @@ export default function AdminPage() {
                         <div className="bg-white p-10 rounded-[3rem] shadow-sm border border-stone-100">
                             <h3 className="text-xl font-bold mb-6">Recent Activity</h3>
                             <div className="space-y-4">
-                                {inquiries.slice(0, 3).map(inquiry => (
+                                {inquiries.length > 0 ? inquiries.slice(0, 3).map(inquiry => (
                                     <div key={inquiry.id} className="flex items-center justify-between p-4 border-b border-stone-100">
                                         <div>
                                             <p className="font-bold">{inquiry.farmerName} ({inquiry.district})</p>
@@ -251,7 +445,7 @@ export default function AdminPage() {
                                             {inquiry.status}
                                         </span>
                                     </div>
-                                ))}
+                                )) : <p className="text-stone-400 text-center py-8 italic">No recent activity found.</p>}
                             </div>
                         </div>
                     </div>
@@ -262,7 +456,11 @@ export default function AdminPage() {
                         <div className="flex justify-between items-center mb-8">
                             <h2 className="text-xl font-bold">Catalog Management</h2>
                             <button
-                                onClick={() => setIsAddingProduct(true)}
+                                onClick={() => {
+                                    setIsAddingProduct(true);
+                                    setIsEditing(false);
+                                    setNewProduct({ name: "", price: "", image: "/peru-kit-card.png", benefits: [""], description: "", usageMethod: "", category: "", isFeatured: false });
+                                }}
                                 className="bg-stone-900 text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 hover:bg-black transition-all"
                             >
                                 <FaPlus size={14} /> Add New Product
@@ -271,54 +469,129 @@ export default function AdminPage() {
 
                         {isAddingProduct && (
                             <div className="bg-white p-8 rounded-3xl border-2 border-primary mb-8 animate-in zoom-in duration-300">
-                                <form onSubmit={handleAddProduct} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div className="space-y-4">
-                                        <input
-                                            placeholder="Product Name (e.g. Bio-Magic)"
-                                            className="w-full p-4 bg-stone-50 rounded-xl border border-stone-100 focus:outline-none focus:border-primary"
-                                            value={newProduct.name}
-                                            onChange={e => setNewProduct({ ...newProduct, name: e.target.value })}
-                                            required
-                                        />
-                                        <input
-                                            placeholder="Price or Category (e.g. ₹499 or Bio-Nematicide)"
-                                            className="w-full p-4 bg-stone-50 rounded-xl border border-stone-100 focus:outline-none focus:border-primary"
-                                            value={newProduct.price}
-                                            onChange={e => setNewProduct({ ...newProduct, price: e.target.value })}
-                                            required
-                                        />
-                                        <textarea
-                                            placeholder="Product Benefits (One per line)
-Example:
-- Improves soil health
-- Boosts yield"
-                                            className="w-full p-4 bg-stone-50 rounded-xl border border-stone-100 focus:outline-none focus:border-primary min-h-[120px]"
-                                            value={newProduct.benefits.join('\n')}
-                                            onChange={e => setNewProduct({ ...newProduct, benefits: e.target.value.split('\n') })}
-                                            required
-                                        />
-                                        <label className="flex items-center gap-2 text-sm font-bold text-stone-600">
+                                <div className="flex justify-between items-center mb-6">
+                                    <h3 className="text-xl font-bold">{isEditing ? "Edit Product" : "Add New Product"}</h3>
+                                    <button
+                                        onClick={() => {
+                                            setIsAddingProduct(false);
+                                            setIsEditing(false);
+                                            setEditingId(null);
+                                        }}
+                                        className="text-stone-400 hover:text-red-500 transition-all font-bold flex items-center gap-1"
+                                    >
+                                        <FaTimes /> Cancel
+                                    </button>
+                                </div>
+                                <form onSubmit={handleAddProduct} className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    <div className="space-y-6">
+                                        <div
+                                            className={`relative h-64 border-2 border-dashed rounded-3xl flex flex-col items-center justify-center transition-all overflow-hidden ${dragActive ? "border-primary bg-primary/5" : "border-stone-200 bg-stone-50 hover:border-stone-300"}`}
+                                            onDragEnter={handleDrag}
+                                            onDragLeave={handleDrag}
+                                            onDragOver={handleDrag}
+                                            onDrop={handleDrop}
+                                        >
+                                            {newProduct.image && (
+                                                <img
+                                                    src={newProduct.image}
+                                                    alt="Preview"
+                                                    className="absolute inset-0 w-full h-full object-contain p-6 opacity-40"
+                                                />
+                                            )}
+                                            <div className="relative z-10 flex flex-col items-center gap-3 pointer-events-none text-center px-6">
+                                                <div className="w-12 h-12 bg-white rounded-2xl shadow-sm flex items-center justify-center text-stone-400">
+                                                    <FaPlus size={20} />
+                                                </div>
+                                                <div>
+                                                    <p className="font-bold text-stone-700">Drag & Drop Product Photo</p>
+                                                    <p className="text-xs text-stone-400 uppercase tracking-widest mt-1">or click to browse files</p>
+                                                </div>
+                                            </div>
+                                            <input
+                                                type="file"
+                                                className="absolute inset-0 opacity-0 cursor-pointer"
+                                                onChange={(e) => e.target.files && handleFile(e.target.files[0])}
+                                                accept="image/*"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-stone-400 uppercase tracking-widest mb-2 ml-1">Photo URL (Optional)</label>
+                                            <input
+                                                placeholder="https://example.com/image.png"
+                                                className="w-full p-4 bg-stone-50 rounded-2xl border border-stone-100 focus:outline-none focus:border-primary text-sm"
+                                                value={newProduct.image}
+                                                onChange={e => setNewProduct({ ...newProduct, image: e.target.value })}
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-stone-400 uppercase tracking-widest mb-2 ml-1">Product Name</label>
+                                            <input
+                                                placeholder="e.g. Bio-Magic Booster"
+                                                className="w-full p-4 bg-stone-50 rounded-2xl border border-stone-100 focus:outline-none focus:border-primary font-bold"
+                                                value={newProduct.name}
+                                                onChange={e => setNewProduct({ ...newProduct, name: e.target.value })}
+                                                required
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-6">
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-xs font-bold text-stone-400 uppercase tracking-widest mb-2 ml-1">Price</label>
+                                                <input
+                                                    placeholder="₹750"
+                                                    className="w-full p-4 bg-stone-50 rounded-2xl border border-stone-100 focus:outline-none focus:border-primary"
+                                                    value={newProduct.price}
+                                                    onChange={e => setNewProduct({ ...newProduct, price: e.target.value })}
+                                                    required
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-bold text-stone-400 uppercase tracking-widest mb-2 ml-1">Category</label>
+                                                <input
+                                                    placeholder="Bio-Nematicide"
+                                                    className="w-full p-4 bg-stone-50 rounded-2xl border border-stone-100 focus:outline-none focus:border-primary"
+                                                    value={newProduct.category}
+                                                    onChange={e => setNewProduct({ ...newProduct, category: e.target.value })}
+                                                />
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-stone-400 uppercase tracking-widest mb-2 ml-1">Method of Usage</label>
+                                            <input
+                                                placeholder="2ml per Liter or Drip Irrigation"
+                                                className="w-full p-4 bg-stone-50 rounded-2xl border border-stone-100 focus:outline-none focus:border-primary"
+                                                value={newProduct.usageMethod}
+                                                onChange={e => setNewProduct({ ...newProduct, usageMethod: e.target.value })}
+                                                required
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-stone-400 uppercase tracking-widest mb-2 ml-1">Key Benefits (One per line)</label>
+                                            <textarea
+                                                placeholder="- Increases Yield&#10;- Improves Soil Health"
+                                                className="w-full p-4 bg-stone-50 rounded-2xl border border-stone-100 focus:outline-none focus:border-primary min-h-[120px]"
+                                                value={newProduct.benefits.join('\n')}
+                                                onChange={e => setNewProduct({ ...newProduct, benefits: e.target.value.split('\n') })}
+                                                required
+                                            />
+                                        </div>
+                                        <label className="flex items-center gap-3 p-4 bg-primary/5 rounded-2xl border border-primary/10 cursor-pointer hover:bg-primary/10 transition-all">
                                             <input
                                                 type="checkbox"
+                                                className="w-5 h-5 accent-primary"
                                                 checked={newProduct.isFeatured}
                                                 onChange={e => setNewProduct({ ...newProduct, isFeatured: e.target.checked })}
                                             />
-                                            Show on Home Page (Featured)
+                                            <span className="text-sm font-bold text-stone-700">Display in "Featured" Section on Home Page</span>
                                         </label>
-                                        <div className="flex gap-4">
-                                            <button
-                                                type="button"
-                                                onClick={() => setIsAddingProduct(false)}
-                                                className="flex-grow p-4 rounded-xl border border-stone-100 font-bold hover:bg-stone-50"
-                                            >
-                                                Cancel
-                                            </button>
+                                        <div className="flex gap-4 pt-2">
                                             <button
                                                 type="submit"
                                                 disabled={isLoading}
-                                                className="flex-grow p-4 bg-primary text-white rounded-xl font-bold hover:opacity-90 transition-all disabled:opacity-50"
+                                                className="flex-grow p-5 bg-primary text-white rounded-2xl font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] transition-all disabled:opacity-50"
                                             >
-                                                {isLoading ? "Saving..." : "Save Product"}
+                                                {isLoading ? "Processing..." : (isEditing ? "Update Product" : "Publish Product")}
                                             </button>
                                         </div>
                                     </div>
@@ -327,25 +600,34 @@ Example:
                         )}
 
                         {error && (
-                            <div className="bg-red-50 text-red-600 p-6 rounded-2xl border border-red-100 mb-8 font-bold">
+                            <div className="bg-red-50 text-red-600 p-6 rounded-2xl border border-red-100 mb-8 font-bold animate-pulse">
                                 {error}
                             </div>
                         )}
 
                         {products.length === 0 && !isLoading && !error && (
-                            <div className="bg-stone-100 p-12 rounded-[2.5rem] text-center border-2 border-dashed border-stone-200">
-                                <FaBoxOpen className="mx-auto text-stone-300 mb-4" size={48} />
-                                <h3 className="text-xl font-bold text-stone-600 mb-2">No products found.</h3>
-                                <p className="text-stone-400">Add your first product to see it here.</p>
+                            <div className="bg-white p-20 rounded-[3rem] text-center border-2 border-dashed border-stone-200">
+                                <div className="w-20 h-20 bg-stone-50 rounded-3xl flex items-center justify-center mx-auto mb-6 text-stone-300">
+                                    <FaBoxOpen size={40} />
+                                </div>
+                                <h3 className="text-2xl font-bold text-stone-900 mb-2">Your Catalog is Empty</h3>
+                                <p className="text-stone-500 mb-8 max-w-md mx-auto">Start building your organic store by adding a product or use our quick-import tool.</p>
+                                <button
+                                    onClick={handleSeedProducts}
+                                    className="bg-stone-900 text-white px-8 py-4 rounded-2xl font-bold hover:bg-black transition-all flex items-center gap-2 mx-auto"
+                                >
+                                    <FaCheck /> Import Full Catalog (5 Products)
+                                </button>
                             </div>
                         )}
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                             {products.map(product => (
                                 <div key={product.id} className="bg-white p-6 rounded-[2.5rem] border border-stone-100 shadow-sm relative group hover:border-primary/20 transition-all">
-                                    <div className="absolute top-4 right-4 flex gap-2">
+                                    <div className="absolute top-6 right-6 flex gap-2 opacity-0 group-hover:opacity-100 transition-all">
                                         <button
-                                            className="bg-stone-100 p-2.5 rounded-xl text-stone-600 hover:bg-stone-200 transition-colors"
+                                            onClick={() => handleStartEdit(product)}
+                                            className="bg-stone-900 text-white p-3 rounded-xl hover:bg-black transition-colors shadow-lg"
                                             title="Edit Product"
                                         >
                                             <FaEdit size={14} />
@@ -353,7 +635,7 @@ Example:
                                         <button
                                             onClick={() => handleDeleteProduct(product.id)}
                                             disabled={deletingId === product.id}
-                                            className="bg-red-50 p-2.5 rounded-xl text-red-500 hover:bg-red-500 hover:text-white transition-all disabled:opacity-50"
+                                            className="bg-red-500 text-white p-3 rounded-xl hover:bg-red-600 transition-all disabled:opacity-50 shadow-lg"
                                             title="Delete Product"
                                         >
                                             {deletingId === product.id ? (
@@ -363,16 +645,35 @@ Example:
                                             )}
                                         </button>
                                     </div>
-                                    <div className="w-16 h-16 bg-stone-50 rounded-2xl flex items-center justify-center mb-4">
-                                        <FaBoxOpen className="text-stone-300" size={24} />
-                                    </div>
-                                    <h3 className="font-bold text-stone-900 mb-1 leading-tight pr-12">{product.name}</h3>
-                                    <p className="text-primary font-bold text-sm mb-4">{product.price}</p>
-                                    <div className="flex flex-wrap gap-2">
-                                        {product.isFeatured && (
-                                            <span className="text-[10px] bg-accent/10 text-accent font-bold px-2 py-1 rounded-full uppercase">Featured</span>
+                                    <div className="w-full aspect-square bg-stone-50 rounded-[2rem] flex items-center justify-center mb-6 overflow-hidden border border-stone-50">
+                                        {product.image && !product.image.startsWith('C:') ? (
+                                            <Image
+                                                src={product.image}
+                                                alt={product.name}
+                                                width={300}
+                                                height={300}
+                                                className="w-full h-full object-cover transition-transform group-hover:scale-110"
+                                                unoptimized={product.image.startsWith('data:')}
+                                            />
+                                        ) : (
+                                            <div className="p-8 text-center bg-red-50 text-red-500 flex flex-col items-center gap-3">
+                                                <FaBoxOpen size={32} />
+                                                <div className="space-y-1">
+                                                    <p className="text-xs font-black uppercase tracking-widest">Broken Path</p>
+                                                    <p className="text-[10px] opacity-60">Local drive files (C:) are not allowed by Next.js</p>
+                                                </div>
+                                            </div>
                                         )}
-                                        <span className="text-[10px] bg-stone-100 text-stone-500 font-bold px-2 py-1 rounded-full uppercase">Live</span>
+                                    </div>
+                                    <div className="px-2">
+                                        <div className="flex items-center gap-2 mb-2">
+                                            {product.isFeatured && (
+                                                <span className="text-[10px] bg-accent/10 text-accent font-black px-2 py-0.5 rounded-full uppercase tracking-tighter">Featured</span>
+                                            )}
+                                            <span className="text-[10px] bg-stone-100 text-stone-400 font-bold px-2 py-0.5 rounded-full uppercase tracking-tighter">{product.category || "Organic"}</span>
+                                        </div>
+                                        <h3 className="font-bold text-stone-900 text-lg mb-1 leading-tight">{product.name}</h3>
+                                        <p className="text-primary font-black text-xl">{product.price}</p>
                                     </div>
                                 </div>
                             ))}
@@ -386,45 +687,53 @@ Example:
                             <table className="w-full text-left">
                                 <thead className="bg-stone-50 border-b border-stone-100">
                                     <tr>
-                                        <th className="p-6 text-xs font-bold text-stone-400 uppercase tracking-widest">Farmer</th>
-                                        <th className="p-6 text-xs font-bold text-stone-400 uppercase tracking-widest">Crop & Location</th>
-                                        <th className="p-6 text-xs font-bold text-stone-400 uppercase tracking-widest">Product</th>
-                                        <th className="p-6 text-xs font-bold text-stone-400 uppercase tracking-widest">Actions</th>
+                                        <th className="p-8 text-xs font-black text-stone-400 uppercase tracking-widest">Farmer Info</th>
+                                        <th className="p-8 text-xs font-black text-stone-400 uppercase tracking-widest">Crop & Location</th>
+                                        <th className="p-8 text-xs font-black text-stone-400 uppercase tracking-widest">Interested Product</th>
+                                        <th className="p-8 text-xs font-black text-stone-400 uppercase tracking-widest text-center">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {inquiries.map(inquiry => (
+                                    {inquiries.length > 0 ? inquiries.map(inquiry => (
                                         <tr key={inquiry.id} className="border-b border-stone-50 hover:bg-stone-50/50 transition-all">
-                                            <td className="p-6">
-                                                <p className="font-bold text-stone-900">{inquiry.farmerName}</p>
-                                                <p className="text-stone-500 text-sm">{inquiry.phone}</p>
+                                            <td className="p-8">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold">
+                                                        {inquiry.farmerName[0]}
+                                                    </div>
+                                                    <div>
+                                                        <p className="font-bold text-stone-900">{inquiry.farmerName}</p>
+                                                        <p className="text-stone-500 text-sm tracking-tighter">{inquiry.phone}</p>
+                                                    </div>
+                                                </div>
                                             </td>
-                                            <td className="p-6">
-                                                <p className="text-stone-900">{inquiry.crop}</p>
+                                            <td className="p-8">
+                                                <p className="font-bold text-stone-800">{inquiry.crop}</p>
                                                 <p className="text-stone-500 text-sm">{inquiry.district}</p>
                                             </td>
-                                            <td className="p-6">
-                                                <span className="bg-stone-100 text-stone-600 text-xs font-bold px-3 py-1 rounded-full">{inquiry.product}</span>
+                                            <td className="p-8">
+                                                <span className="bg-stone-900 text-white text-[10px] font-black px-3 py-1.5 rounded-lg uppercase tracking-widest">{inquiry.product}</span>
                                             </td>
-                                            <td className="p-6">
-                                                <div className="flex gap-3">
+                                            <td className="p-8">
+                                                <div className="flex justify-center gap-4">
                                                     <a
                                                         href={`https://wa.me/${inquiry.phone}`}
                                                         target="_blank"
-                                                        className="text-primary hover:scale-110 transition-all"
+                                                        className="w-10 h-10 bg-green-50 text-green-500 rounded-xl flex items-center justify-center hover:bg-green-500 hover:text-white transition-all shadow-sm"
+                                                        title="WhatsApp Farmer"
                                                     >
                                                         <FaWhatsapp size={20} />
                                                     </a>
                                                     <button
                                                         onClick={() => handleUpdateInquiryStatus(inquiry.id, "COMPLETED")}
-                                                        className={`transition-all ${inquiry.status === "COMPLETED" ? "text-green-500" : "text-stone-300 hover:text-green-500"}`}
+                                                        className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all shadow-sm ${inquiry.status === "COMPLETED" ? "bg-green-500 text-white" : "bg-stone-50 text-stone-300 hover:bg-green-50 hover:text-green-500"}`}
                                                         title="Mark as Completed"
                                                     >
                                                         <FaCheck size={18} />
                                                     </button>
                                                     <button
                                                         onClick={() => handleDeleteInquiry(inquiry.id)}
-                                                        className="text-stone-300 hover:text-red-500 transition-all"
+                                                        className="w-10 h-10 bg-red-50 text-red-300 rounded-xl flex items-center justify-center hover:bg-red-500 hover:text-white transition-all shadow-sm"
                                                         title="Delete Inquiry"
                                                     >
                                                         <FaTrash size={18} />
@@ -432,7 +741,11 @@ Example:
                                                 </div>
                                             </td>
                                         </tr>
-                                    ))}
+                                    )) : (
+                                        <tr>
+                                            <td colSpan={4} className="p-20 text-center text-stone-400 italic font-bold">No farmer inquiries found yet.</td>
+                                        </tr>
+                                    )}
                                 </tbody>
                             </table>
                         </div>
