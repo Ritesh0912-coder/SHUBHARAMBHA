@@ -236,7 +236,7 @@ export default function AdminPage() {
             {
                 name: "Rootlix (रूटलिक्स्)",
                 price: "₹५९९",
-                image: "/product-group.png",
+                image: "/rootlix-new.png",
                 benefits: ["पांढऱ्या मुळ्यांची जोमदार वाढ", "अन्नद्रव्य शोषण्याची क्षमता वाढवते"],
                 description: "पांढऱ्या मुळ्यांच्या जोमदार वाढीसाठी विशेष पावडर. पिकाला जमिनीत घट्ट पकड मिळवून देते.",
                 usageMethod: "५०० ग्रॅम प्रती एकर ड्रीप किंवा पाण्यासोबत.",
@@ -291,6 +291,146 @@ export default function AdminPage() {
                 description: "शेणखताची शक्ती वाढवून पिकांना उपलब्ध करून देणारे जैविक घटक.",
                 usageMethod: "१ लिटर प्रती एकर शेणखतासोबत किंवा पाण्यातून.",
                 category: "Manure Booster",
+                isFeatured: false
+            },
+            {
+                name: "Pseudo (Radix)",
+                price: "₹८००",
+                image: "/pseudo.png",
+                benefits: ["Control Bacterial Disease", "Boosts Plant Immunity"],
+                description: "Effective control for bacterial disease in crops. Helps in reducing bacterial wilt and leaf spots.",
+                usageMethod: "Foliar spray or soil application as per requirement.",
+                category: "Bactericide",
+                isFeatured: false
+            },
+            {
+                name: "Tricho (Radix)",
+                price: "₹८००",
+                image: "/tricho.png",
+                benefits: ["Control for harmful Fungi", "Protects Roots"],
+                description: "Bio-fungicide that controls soil-borne pathogens and improves root health.",
+                usageMethod: "Soil drenching or seed treatment.",
+                category: "Fungicide",
+                isFeatured: false
+            },
+            {
+                name: "Anar Special Kit",
+                price: "₹१५००",
+                image: "/anar-special.png",
+                benefits: ["Complete Nutrition for Pomegranate", "Improves Fruit Size & Color"],
+                description: "Specialized kit for pomegranate (Anar) crops to ensure high yield and quality fruit.",
+                usageMethod: "Use as per schedule provided in the box.",
+                category: "Special Kit",
+                isFeatured: true
+            },
+            {
+                name: "CIBA (Radix)",
+                price: "₹९००",
+                image: "/ciba.png",
+                benefits: ["Special for flower initiation", "Reduces Flower Drop"],
+                description: "Promotes profuse flowering and reduces flower dropping in various crops.",
+                usageMethod: "Spray during flowering stage.",
+                category: "Flower Booster",
+                isFeatured: true
+            },
+            {
+                name: "Croptonic (Radix)",
+                price: "₹१०००",
+                image: "/croptonic.png",
+                benefits: ["Advance Bio Stimulant", "Increases Yield"],
+                description: "Advanced bio-stimulant for overall crop growth, stress resistance, and yield improvement.",
+                usageMethod: "Foliar spray during active growth period.",
+                category: "Bio Stimulant",
+                isFeatured: false
+            },
+            {
+                name: "Shubharambha Peru Special Kit",
+                price: "₹१२००",
+                image: "/shubharambha-kit.png",
+                benefits: ["Complete Nutrition for Guava", "Improves Size & Sweetness"],
+                description: "All-in-one kit for Guava (Peru) cultivation. Ensures balanced nutrition and protection.",
+                usageMethod: "Use as per kit instructions.",
+                category: "Special Kit",
+                isFeatured: true
+            },
+            {
+                name: "Subtilis (Radix)",
+                price: "₹८००",
+                image: "/subtilis.png",
+                benefits: ["Controls Bacterial Wilt", "Soil Health Improvement"],
+                description: "Bacillus Subtilis based bio-bactericide. Effective against soil-borne bacterial pathogens.",
+                usageMethod: "Drenching or soil application.",
+                category: "Bactericide",
+                isFeatured: false
+            },
+            {
+                name: "Bio-Magic (Radix Premium)",
+                price: "₹९५०",
+                image: "/bio-magic-radix.png",
+                benefits: ["Enhanced Flowering", "Reduces Flower Drop"],
+                description: "Premium flowering stimulant. Ensures maximum conversion of flowers to fruit.",
+                usageMethod: "Foliar spray during pre-flowering.",
+                category: "Flower Booster",
+                isFeatured: true
+            },
+            {
+                name: "Evitor (Radix)",
+                price: "₹८५०",
+                image: "/evitor.png",
+                benefits: ["Controls Larvae & Sucking Pests", "Eco-friendly"],
+                description: "Effective bio-pesticide for controlling larvae and sucking pests without chemical residue.",
+                usageMethod: "Spray 2ml per liter of water.",
+                category: "Pest Control",
+                isFeatured: false
+            },
+            {
+                name: "P-Lifter & K-Lifter Combo",
+                price: "₹१२००",
+                image: "/lifter-combo.png",
+                benefits: ["Mobilizes Phosphorous & Potash", "Improves Fruit Quality"],
+                description: "Combo pack of Phosphate Solubilizing Bacteria (PSB) and Potash Mobilizer. Essential for fruit development.",
+                usageMethod: "Drip irrigation or drenching.",
+                category: "Soil Health",
+                isFeatured: true
+            },
+            {
+                name: "Nutrimax (Radix)",
+                price: "₹७५०",
+                image: "/nutrimax.png",
+                benefits: ["Complete Micronutrient Mix", "Enriched with Amino & Seaweed"],
+                description: "Liquid micronutrient formula (Grade II) for resolving nutrient deficiencies.",
+                usageMethod: "Foliar spray.",
+                category: "Micronutrients",
+                isFeatured: false
+            },
+            {
+                name: "Spark (Radix)",
+                price: "₹५५०",
+                image: "/spark.png",
+                benefits: ["Neem/Karanj Oil Combo", "Effective Pest Repellent"],
+                description: "Herbal combination for pest control. 10000 ppm formulation.",
+                usageMethod: "Spray as preventative measure.",
+                category: "Pest Control",
+                isFeatured: false
+            },
+            {
+                name: "Zycoprime (Radix)",
+                price: "₹१४००",
+                image: "/zycoprime.png",
+                benefits: ["All-in-one Growth Booster", "High Solubility"],
+                description: "Comprehensive plant food for vegetative growth and root development.",
+                usageMethod: "Drip or drenching.",
+                category: "Growth Promoter",
+                isFeatured: true
+            },
+            {
+                name: "Bio-Strock (Radix)",
+                price: "₹६५०",
+                image: "/bio-strock.png",
+                benefits: ["Multipurpose Plant Food", "Improves Greenery"],
+                description: "Organic plant food supplement for overall health and vigor.",
+                usageMethod: "Foliar spray or soil application.",
+                category: "Plant Food",
                 isFeatured: false
             }
         ];
@@ -624,7 +764,7 @@ export default function AdminPage() {
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                             {products.map(product => (
                                 <div key={product.id} className="bg-white p-6 rounded-[2.5rem] border border-stone-100 shadow-sm relative group hover:border-primary/20 transition-all">
-                                    <div className="absolute top-6 right-6 flex gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                                    <div className="absolute top-6 right-6 flex gap-2 z-10">
                                         <button
                                             onClick={() => handleStartEdit(product)}
                                             className="bg-stone-900 text-white p-3 rounded-xl hover:bg-black transition-colors shadow-lg"
