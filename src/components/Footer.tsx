@@ -13,19 +13,19 @@ export default function Footer() {
                             <div className="relative w-12 h-12 rounded-full overflow-hidden border border-stone-200">
                                 <Image
                                     src="/logo.jpg"
-                                    alt="Shree Gaurai Agro Logo"
+                                    alt="Shubharambha Logo"
                                     fill
                                     className="object-cover"
                                 />
                             </div>
-                            <h3 className="text-xl font-bold text-primary leading-tight">श्री गौराई ॲग्रो</h3>
+                            <h3 className="text-xl font-bold text-primary leading-tight">शुभारंभ</h3>
                         </div>
                         <p className="text-stone-600 mb-6 leading-relaxed">
-                            Shree Gaurai Agro Solutions & Consultancy तर्फे शेतकऱ्यांसाठी विश्वासार्ह जैविक उपक्रम आणि मार्गदर्शन.
+                            Radix International तर्फे शेतकऱ्यांसाठी विश्वासार्ह जैविक उत्पादने आणि मार्गदर्शन.
                         </p>
                         <div className="flex items-center gap-2 text-stone-400 font-bold text-sm tracking-widest uppercase">
                             <span className="w-8 h-px bg-stone-300"></span>
-                            Santosh Shinde
+                            Radix International
                         </div>
                     </div>
 
@@ -54,7 +54,7 @@ export default function Footer() {
                             </div>
                             <div className="space-y-4">
                                 <div className="flex items-center gap-3">
-                                    <FaMapMarkerAlt className="text-primary" /> बारामती, पुणे, महाराष्ट्र
+                                    <FaMapMarkerAlt className="text-primary" /> पुणे, महाराष्ट्र, भारत
                                 </div>
                                 <div className="flex items-center gap-3">
                                     <FaClock className="text-primary" /> सकाळी 9 ते संध्याकाळी 7
@@ -65,8 +65,8 @@ export default function Footer() {
                 </div>
 
                 <div className="pt-8 border-t border-stone-200 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-stone-400">
-                    <p>© {new Date().getFullYear()} Shree Gaurai Agro Solutions & Consultancy. सर्व हक्क राखीव.</p>
-                    <p className="font-medium text-stone-500">पुणे, इंदापूर, बारामती क्षेत्रासाठी समर्पित.</p>
+                    <p>© 2025 Radix International - शुभारंभ. सर्व हक्क राखीव.</p>
+                    <p className="font-medium text-stone-500">पुणे, महाराष्ट्र - भारत</p>
                 </div>
             </div>
         </footer>

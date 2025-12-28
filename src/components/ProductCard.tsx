@@ -8,19 +8,20 @@ interface ProductCardProps {
     price: string;
     image: string;
     benefits: string[];
+    suitableCrops?: string[];
 }
 
-export default function ProductCard({ name, price, image, benefits, id }: ProductCardProps) {
-    const whatsappMessage = `नमस्कार 🙏
-मला ${name} ची ऑर्डर द्यायची आहे.
+export default function ProductCard({ name, price, image, benefits, id, suitableCrops }: ProductCardProps) {
+    const whatsappMessage = `नमस्कार,
+मला शुभारंभ ब्रँडचे ${name} (${price}) घ्यायचे आहे.
 
 📍 जिल्हा:
-🌾 पीक:
-📦 प्रमाण (500ml / 1L):
-📞 मोबाईल नंबर:
-🏡 पूर्ण पत्ता:
+🌾 मुख्य पीक: ${(suitableCrops && suitableCrops.length > 0) ? suitableCrops.join(", ") : ""}
+📦 प्रमाण:
+📞 मोबाईल:
+🏡 पत्ता:
 
-COD / UPI पेमेंट कळवा.
+कृपया मार्गदर्शन करा.
 धन्यवाद.`;
 
     const whatsappUrl = `https://wa.me/917798693233?text=${encodeURIComponent(whatsappMessage)}`;
@@ -51,6 +52,12 @@ COD / UPI पेमेंट कळवा.
                         className="block text-center border border-primary text-primary px-4 py-2.5 rounded-full font-bold hover:bg-stone-50 transition-all"
                     >
                         माहिती पाहा
+                    </Link>
+                    <Link
+                        href="/solutions"
+                        className="block text-center bg-stone-100 text-stone-600 px-4 py-2.5 rounded-full font-bold hover:bg-stone-200 transition-all"
+                    >
+                        Solutions / सल्ला
                     </Link>
                     <a
                         href={whatsappUrl}

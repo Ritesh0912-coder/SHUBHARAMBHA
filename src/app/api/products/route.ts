@@ -21,18 +21,21 @@ export async function GET() {
 export async function POST(request: Request) {
     try {
         const body = await request.json();
-        const { name, price, image, benefits, description, usageMethod, category, isFeatured } = body;
+        const { name, price, image, benefits, description, usageMethod, category, isFeatured, suitableCrops, isVisible, isSpecialKit } = body;
 
         const product = await prisma.product.create({
             data: {
                 name,
                 price,
                 image,
-                benefits,
+                benefits: Array.isArray(benefits) ? benefits : (typeof benefits === 'string' ? benefits.split(',').map(b => b.trim()).filter(Boolean) : []),
                 description,
                 usageMethod,
                 category,
-                isFeatured,
+                isFeatured: isFeatured || false,
+                suitableCrops: Array.isArray(suitableCrops) ? suitableCrops : (typeof suitableCrops === 'string' ? suitableCrops.split(',').map(s => s.trim()).filter(Boolean) : []),
+                isVisible: isVisible !== false,
+                isSpecialKit: isSpecialKit || false,
             },
         });
 
@@ -42,3 +45,4 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }
+

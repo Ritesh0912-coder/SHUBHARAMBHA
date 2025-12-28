@@ -11,23 +11,25 @@ export default function Navbar() {
                             <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-primary/20">
                                 <Image
                                     src="/logo.jpg"
-                                    alt="Shree Gaurai Agro Logo"
+                                    alt="Shubharambha Logo"
                                     fill
                                     className="object-cover"
                                 />
                             </div>
                             <span className="text-xl font-bold text-primary tracking-tight leading-tight hidden lg:block">
-                                SHREE GAURAI AGRO <br />
-                                <span className="text-xs text-stone-500 font-medium">SOLUTIONS & CONSULTANCY</span>
+                                शुभारंभ <br />
+                                <span className="text-xs text-stone-500 font-medium">by Radix International</span>
                             </span>
                             <span className="text-lg font-bold text-primary tracking-tight md:hidden">
-                                SHREE GAURAI AGRO
+                                शुभारंभ
                             </span>
                         </Link>
                     </div>
                     <div className="hidden md:flex space-x-8 items-center">
                         <Link href="/" className="text-foreground hover:text-primary font-medium">होम</Link>
                         <Link href="/products" className="text-foreground hover:text-primary font-medium">आमची उत्पादने</Link>
+                        <Link href="/solutions" className="text-foreground hover:text-primary font-medium">पिक मार्गदर्शन (Solutions)</Link>
+                        <Link href="/#videos" className="text-foreground hover:text-primary font-medium">शेतकरी अनुभव</Link>
                         <Link href="/how-it-works" className="text-foreground hover:text-primary font-medium">कसे कार्य करते</Link>
                         <Link href="/about" className="text-foreground hover:text-primary font-medium">आमच्याबद्दल</Link>
                         <Link href="/contact" className="text-foreground hover:text-primary font-medium tracking-tight">संपर्क</Link>

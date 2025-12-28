@@ -3,27 +3,33 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import ProductCard from "@/components/ProductCard";
+import SpecialKitCard from "@/components/SpecialKitCard";
+import FarmerVideos from "@/components/FarmerVideos";
 import { FaWhatsapp, FaArrowRight, FaLeaf, FaShieldAlt, FaTruck, FaCheckCircle, FaUserTie, FaQuestionCircle, FaStar } from "react-icons/fa";
 import { GiFertilizerBag } from "react-icons/gi";
 
 export default function Home() {
   const [featuredProducts, setFeaturedProducts] = useState<any[]>([]);
   const [coreProducts, setCoreProducts] = useState<any[]>([]);
+  const [specialKits, setSpecialKits] = useState<any[]>([]);
 
   useEffect(() => {
     fetch("/api/products")
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data) && data.length > 0) {
-          const processed = data.map(p => ({
+          const processed = data.filter(p => p.isVisible !== false).map(p => ({
             ...p,
             tag: p.category || p.price || "Bio-Organic",
             description: p.description || (p.benefits ? p.benefits[0] : "High quality bio-product."),
             usage: p.usageMethod || p.usage || "तज्ञांच्या सल्ल्यानुसार वापरा.",
             points: p.benefits || []
           }));
-          setCoreProducts(processed);
-          setFeaturedProducts(processed.filter(p => p.isFeatured).slice(0, 3));
+          const kits = processed.filter(p => p.isSpecialKit);
+          const regularProducts = processed.filter(p => !p.isSpecialKit);
+          setSpecialKits(kits);
+          setCoreProducts(regularProducts);
+          setFeaturedProducts(regularProducts.filter(p => p.isFeatured).slice(0, 3));
         } else {
           setCoreProducts(staticCoreProducts);
           setFeaturedProducts(staticCoreProducts.slice(0, 3));
@@ -128,7 +134,7 @@ export default function Home() {
               <div className="relative w-8 h-8 rounded-full overflow-hidden">
                 <Image src="/logo.jpg" alt="Logo" fill className="object-cover" />
               </div>
-              <span className="text-sm font-bold tracking-wide">श्री गौराई ॲग्रो</span>
+              <span className="text-sm font-bold tracking-wide">शुभारंभ by Radix International</span>
             </div>
             <h1 className="text-5xl md:text-7xl font-extrabold mb-6 leading-tight font-marathi">
               शेतकऱ्यांसाठी <br />
@@ -137,11 +143,11 @@ export default function Home() {
             </h1>
             <p className="text-xl md:text-2xl mb-10 text-stone-200 font-medium leading-relaxed border-l-4 border-accent pl-6">
               माती सुधारणा | रोग नियंत्रण | उत्पादन वाढ <br />
-              <span className="text-lg opacity-80">पुणे, इंदापूर, बारामती क्षेत्रासाठी 'श्री गौराई ॲग्रो' ची साथ.</span>
+              <span className="text-lg opacity-80">पुणे, महाराष्ट्र - 'शुभारंभ' ची साथ.</span>
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <a
-                href="https://wa.me/917798693233?text=नमस्कार 🙏%0Aमला श्री गौराई ॲग्रो उत्पादनांबद्दल माहिती हवी आहे."
+                href="https://wa.me/917798693233?text=नमस्कार 🙏%0Aमला शुभारंभ उत्पादनांबद्दल माहिती हवी आहे."
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-whatsapp text-lg px-8 py-4 justify-center"
@@ -282,6 +288,30 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Special Kits Section */}
+      {specialKits.length > 0 && (
+        <section className="py-24 px-4 bg-gradient-to-br from-primary/5 to-accent/5">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-16">
+              <div className="inline-block bg-accent/10 text-accent px-4 py-1 rounded-full text-sm font-bold mb-4 uppercase tracking-widest">
+                विशेष ऑफर
+              </div>
+              <h2 className="text-4xl font-bold text-stone-900 mb-4 font-marathi">स्पेशल किट्स</h2>
+              <p className="text-xl text-stone-600 max-w-2xl mx-auto">प्रत्येक पिकासाठी संपूर्ण सोल्यूशन - एका किटमध्ये सर्व काही</p>
+              <div className="h-1.5 w-24 bg-primary mx-auto rounded-full mt-4" />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {specialKits.map((kit) => (
+                <SpecialKitCard key={kit.id} {...kit} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Farmer Experience Videos */}
+      <FarmerVideos />
 
       {/* FAQ Section */}
       <section className="py-24 bg-white px-4">

@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { FaLock, FaUserShield, FaChartLine, FaBoxOpen, FaUsers, FaPlus, FaTrash, FaEdit, FaCheck, FaTimes, FaWhatsapp } from "react-icons/fa";
+import { FaLock, FaUserShield, FaChartLine, FaBoxOpen, FaUsers, FaPlus, FaTrash, FaEdit, FaCheck, FaTimes, FaWhatsapp, FaVideo, FaYoutube, FaEye, FaEyeSlash, FaChevronDown, FaLightbulb, FaCloudUploadAlt } from "react-icons/fa";
 
 interface Product {
     id: string;
@@ -12,6 +12,9 @@ interface Product {
     description?: string;
     usageMethod?: string;
     category?: string;
+    suitableCrops?: string[];
+    isVisible?: boolean;
+    isSpecialKit?: boolean;
     isFeatured: boolean;
 }
 
@@ -26,15 +29,36 @@ interface Inquiry {
     createdAt: string;
 }
 
+interface FarmerVideo {
+    id: string;
+    title: string;
+    videoUrl: string;
+    isYouTube: boolean;
+    isVisible: boolean;
+}
+
+interface CropGuidance {
+    id: string;
+    cropName: string;
+    image?: string;
+    problems: string;
+    solutions: string;
+    usageMethod: string;
+    advice: string;
+}
+
 export default function AdminPage() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [password, setPassword] = useState("gaurai2025");
-    const [view, setView] = useState<"overview" | "products" | "inquiries">("overview");
+    const [password, setPassword] = useState("shubharambha2025");
+    const [view, setView] = useState<"overview" | "products" | "inquiries" | "videos" | "guidance">("overview");
     const [products, setProducts] = useState<Product[]>([]);
     const [inquiries, setInquiries] = useState<Inquiry[]>([]);
+    const [videos, setVideos] = useState<FarmerVideo[]>([]);
+    const [guidances, setGuidances] = useState<CropGuidance[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [deletingId, setDeletingId] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
 
     // Form states
     const [isAddingProduct, setIsAddingProduct] = useState(false);
@@ -49,13 +73,41 @@ export default function AdminPage() {
         description: "",
         usageMethod: "",
         category: "",
+        suitableCrops: "",
+        isVisible: true,
+        isSpecialKit: false,
         isFeatured: false
+    });
+
+    // Video form states
+    const [isAddingVideo, setIsAddingVideo] = useState(false);
+    const [videoFile, setVideoFile] = useState<File | null>(null);
+    const [newVideo, setNewVideo] = useState({
+        title: "",
+        videoUrl: "",
+        isYouTube: false
+    });
+
+    // Guidance form states
+    const [isAddingGuidance, setIsAddingGuidance] = useState(false);
+    const [isEditingGuidance, setIsEditingGuidance] = useState(false);
+    const [editingGuidanceId, setEditingGuidanceId] = useState<string | null>(null);
+    const [cropImage, setCropImage] = useState<File | null>(null);
+    const [newGuidance, setNewGuidance] = useState({
+        cropName: "पेरू",
+        image: "",
+        problems: "",
+        solutions: "",
+        usageMethod: "",
+        advice: ""
     });
 
     useEffect(() => {
         if (isLoggedIn) {
             fetchProducts();
             fetchInquiries();
+            fetchVideos();
+            fetchGuidance();
         }
     }, [isLoggedIn]);
 
@@ -86,6 +138,162 @@ export default function AdminPage() {
             const res = await fetch("/api/inquiries");
             const data = await res.json();
             if (Array.isArray(data)) setInquiries(data);
+        } catch (e) { console.error(e); }
+    };
+
+    const fetchVideos = async () => {
+        try {
+            const res = await fetch("/api/videos");
+            const data = await res.json();
+            if (Array.isArray(data)) setVideos(data);
+        } catch (e) { console.error(e); }
+    };
+
+    const handleAddVideo = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsLoading(true);
+        try {
+            let finalVideoUrl = newVideo.videoUrl;
+
+            if (!newVideo.isYouTube && videoFile) {
+                const formData = new FormData();
+                formData.append("file", videoFile);
+                const uploadRes = await fetch("/api/upload", {
+                    method: "POST",
+                    body: formData
+                });
+                const uploadData = await uploadRes.json();
+                if (uploadRes.ok) {
+                    finalVideoUrl = uploadData.secure_url;
+                } else {
+                    alert("व्हिडिओ अपलोड अयशस्वी: " + (uploadData.error || "Unknown error"));
+                    setIsLoading(false);
+                    return;
+                }
+            }
+
+            if (!finalVideoUrl) {
+                alert("कृपया व्हिडिओ URL द्या किंवा व्हिडिओ फाइल निवडा.");
+                setIsLoading(false);
+                return;
+            }
+
+            const res = await fetch("/api/videos", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ ...newVideo, videoUrl: finalVideoUrl })
+            });
+            if (res.ok) {
+                await fetchVideos();
+                setIsAddingVideo(false);
+                setVideoFile(null);
+                setNewVideo({ title: "", videoUrl: "", isYouTube: false });
+            } else {
+                alert("व्हिडिओ जतन करण्यात अयशस्वी.");
+            }
+        } catch (e: any) {
+            console.error(e);
+            alert("नेटवर्क एरर: " + e.message);
+        }
+        setIsLoading(false);
+    };
+
+    const handleToggleVideoVisibility = async (id: string, isVisible: boolean) => {
+        try {
+            await fetch(`/api/videos/${id}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ isVisible: !isVisible })
+            });
+            await fetchVideos();
+        } catch (e) { console.error(e); }
+    };
+
+    const handleDeleteVideo = async (id: string) => {
+        if (!confirm("हा व्हिडिओ हटवायचा आहे का?")) return;
+        try {
+            const res = await fetch(`/api/videos/${id}`, { method: "DELETE" });
+            if (res.ok) await fetchVideos();
+        } catch (e) { console.error(e); }
+    };
+
+    const fetchGuidance = async () => {
+        try {
+            const res = await fetch("/api/guidance");
+            const data = await res.json();
+            if (Array.isArray(data)) setGuidances(data);
+        } catch (e) { console.error(e); }
+    };
+
+    const handleAddGuidance = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsLoading(true);
+        try {
+            let finalImageUrl = newGuidance.image;
+
+            if (cropImage) {
+                const formData = new FormData();
+                formData.append("file", cropImage);
+                const uploadRes = await fetch("/api/upload", {
+                    method: "POST",
+                    body: formData
+                });
+                const uploadData = await uploadRes.json();
+                if (uploadRes.ok) {
+                    finalImageUrl = uploadData.secure_url;
+                } else {
+                    alert("प्रतिमा अपलोड अयशस्वी: " + (uploadData.error || "Unknown error"));
+                    setIsLoading(false);
+                    return;
+                }
+            }
+
+            const url = isEditingGuidance && editingGuidanceId ? `/api/guidance/${editingGuidanceId}` : "/api/guidance";
+            const method = isEditingGuidance ? "PATCH" : "POST";
+
+            const res = await fetch(url, {
+                method,
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ ...newGuidance, image: finalImageUrl })
+            });
+
+            if (res.ok) {
+                await fetchGuidance();
+                setIsAddingGuidance(false);
+                setIsEditingGuidance(false);
+                setEditingGuidanceId(null);
+                setCropImage(null);
+                setNewGuidance({ cropName: "पेरू", image: "", problems: "", solutions: "", usageMethod: "", advice: "" });
+            } else {
+                alert("माहिती जतन करण्यात अयशस्वी.");
+            }
+        } catch (e: any) {
+            console.error(e);
+            alert("नेटवर्क एरर: " + e.message);
+        }
+        setIsLoading(false);
+    };
+
+    const handleStartEditGuidance = (guidance: CropGuidance) => {
+        setIsAddingGuidance(true);
+        setIsEditingGuidance(true);
+        setEditingGuidanceId(guidance.id);
+        setNewGuidance({
+            cropName: guidance.cropName,
+            image: guidance.image || "",
+            problems: guidance.problems,
+            solutions: guidance.solutions,
+            usageMethod: guidance.usageMethod,
+            advice: guidance.advice
+        });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const handleDeleteGuidance = async (id: string) => {
+        if (!confirm("हे मार्गदर्शन हटवायचे आहे का?")) return;
+        try {
+            const res = await fetch(`/api/guidance/${id}`, { method: "DELETE" });
+            if (res.ok) await fetchGuidance();
         } catch (e) { console.error(e); }
     };
 
@@ -133,6 +341,9 @@ export default function AdminPage() {
                     description: "",
                     usageMethod: "",
                     category: "",
+                    suitableCrops: "",
+                    isVisible: true,
+                    isSpecialKit: false,
                     isFeatured: false
                 });
             } else {
@@ -155,6 +366,9 @@ export default function AdminPage() {
             description: product.description || "",
             usageMethod: product.usageMethod || "",
             category: product.category || "",
+            suitableCrops: (product.suitableCrops || []).join(", "),
+            isVisible: product.isVisible !== false,
+            isSpecialKit: product.isSpecialKit || false,
             isFeatured: product.isFeatured
         });
         setEditingId(product.id);
@@ -432,6 +646,55 @@ export default function AdminPage() {
                 usageMethod: "Foliar spray or soil application.",
                 category: "Plant Food",
                 isFeatured: false
+            },
+            // ============ SPECIAL KITS (3 Main Kits) ============
+            {
+                name: "पेरू स्पेशल किट",
+                price: "₹6,200",
+                image: "/peru-special-kit.png",
+                benefits: [
+                    "पेरूच्या संपूर्ण वाढीसाठी ४ टप्प्यांचे नियोजन",
+                    "निमॅटोड आणि मुळकूजवर प्रभावी नियंत्रण",
+                    "फळांचा आकार आणि गोडवा वाढवते",
+                    "रासायनिक खर्चात बचत"
+                ],
+                description: "पेरू बागेसाठी संपूर्ण जैविक सोल्यूशन. ४ डोस सिस्टीमद्वारे बागेचे आरोग्य सुधारते आणि भरघोस उत्पादन मिळते.",
+                usageMethod: "किटमधील मार्गदर्शनानुसार ड्रीप किंवा पाण्यासोबत वापरा.",
+                category: "Special Kit",
+                isSpecialKit: true,
+                isFeatured: true
+            },
+            {
+                name: "डाळिंब स्पेशल किट",
+                price: "₹18,500",
+                image: "/anar-special.png",
+                benefits: [
+                    "डाळिंबाच्या संपूर्ण वाढीसाठी विशेष फॉर्म्युला",
+                    "फळांना नैसर्गिक लाल रंग आणि चकाकी",
+                    "मुळकूज आणि बॅक्टेरियल ब्लाइटवर नियंत्रण",
+                    "फळांचा आकार आणि वजन वाढवते"
+                ],
+                description: "डाळिंब बागेसाठी प्रीमियम जैविक किट. एक्सपोर्ट क्वालिटी फळांसाठी आवश्यक सर्व उत्पादने एकत्र.",
+                usageMethod: "किटमधील मार्गदर्शनानुसार टप्प्याटप्प्याने वापरा.",
+                category: "Special Kit",
+                isSpecialKit: true,
+                isFeatured: true
+            },
+            {
+                name: "केळी स्पेशल किट",
+                price: "₹3,700",
+                image: "/product-group.png",
+                benefits: [
+                    "केळीच्या जोमदार वाढीसाठी विशेष फॉर्म्युला",
+                    "घडाचा आकार आणि वजन वाढवते",
+                    "पानांचा हिरवेपणा कायम राखते",
+                    "मुळांची मजबूती वाढवते"
+                ],
+                description: "केळी पिकासाठी संपूर्ण जैविक सोल्यूशन. कमी खर्चात जास्त उत्पादन.",
+                usageMethod: "किटमधील मार्गदर्शनानुसार ड्रीप किंवा पाण्यासोबत वापरा.",
+                category: "Special Kit",
+                isSpecialKit: true,
+                isFeatured: true
             }
         ];
 
@@ -468,7 +731,7 @@ export default function AdminPage() {
 
     const handleLogin = (e: React.FormEvent) => {
         e.preventDefault();
-        if (password === "gaurai2025") {
+        if (password === "shubharambha2025") {
             setIsLoggedIn(true);
         } else {
             alert("Invalid credentials.");
@@ -484,7 +747,7 @@ export default function AdminPage() {
                             <FaLock size={24} />
                         </div>
                         <h1 className="text-2xl font-bold text-white font-marathi">Admin Portal</h1>
-                        <p className="text-stone-500 text-sm">Gaurai Agro Consultancy</p>
+                        <p className="text-stone-500 text-sm">Radix International - शुभारंभ</p>
                     </div>
                     <form onSubmit={handleLogin} className="space-y-6">
                         <div>
@@ -512,8 +775,63 @@ export default function AdminPage() {
             <aside className="w-full md:w-64 bg-stone-900 text-white p-8 md:min-h-screen">
                 <div className="flex items-center gap-3 mb-12">
                     <div className="w-8 h-8 bg-primary rounded-lg" />
-                    <span className="font-bold tracking-tight text-xs uppercase">GAURAI AGRO Admin</span>
+                    <span className="font-bold tracking-tight text-xs uppercase">शुभारंभ Admin</span>
                 </div>
+
+                {/* Quick Add Dropdown */}
+                <div className="relative mb-8">
+                    <button
+                        onClick={() => setIsQuickAddOpen(!isQuickAddOpen)}
+                        className="w-full bg-primary/10 text-primary border border-primary/20 p-3 rounded-xl font-bold flex items-center justify-between hover:bg-primary/20 transition-all"
+                    >
+                        <span className="flex items-center gap-2 text-sm">
+                            <FaPlus size={12} /> झटपट जोडा
+                        </span>
+                        <FaChevronDown className={`transition-transform duration-200 ${isQuickAddOpen ? 'rotate-180' : ''}`} size={12} />
+                    </button>
+
+                    {isQuickAddOpen && (
+                        <div className="absolute top-full left-0 w-full bg-white border border-stone-200 rounded-xl shadow-2xl mt-2 z-50 overflow-hidden text-stone-900 animate-in slide-in-from-top-2 duration-200">
+                            <button
+                                onClick={() => {
+                                    setView("products");
+                                    setIsAddingProduct(true);
+                                    setIsQuickAddOpen(false);
+                                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                                }}
+                                className="w-full text-left p-3 hover:bg-stone-50 font-bold flex items-center gap-2 border-b border-stone-100 text-sm"
+                            >
+                                <FaBoxOpen className="text-primary" /> नवीन उत्पादन
+                            </button>
+                            <button
+                                onClick={() => {
+                                    setView("videos");
+                                    setIsAddingVideo(true);
+                                    setIsQuickAddOpen(false);
+                                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                                }}
+                                className="w-full text-left p-3 hover:bg-stone-50 font-bold flex items-center gap-2 border-b border-stone-100 text-sm"
+                            >
+                                <FaVideo className="text-primary" /> नवीन व्हिडिओ
+                            </button>
+                            <button
+                                onClick={() => {
+                                    setView("guidance");
+                                    setIsAddingGuidance(true);
+                                    setIsEditingGuidance(false);
+                                    setEditingGuidanceId(null);
+                                    setNewGuidance({ cropName: "पेरू", image: "", problems: "", solutions: "", usageMethod: "", advice: "" });
+                                    setIsQuickAddOpen(false);
+                                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                                }}
+                                className="w-full text-left p-3 hover:bg-stone-50 font-bold flex items-center gap-2 text-sm"
+                            >
+                                <FaLightbulb className="text-primary" /> नवीन मार्गदर्शन
+                            </button>
+                        </div>
+                    )}
+                </div>
+
                 <nav className="space-y-2">
                     <button
                         onClick={() => setView("overview")}
@@ -525,13 +843,25 @@ export default function AdminPage() {
                         onClick={() => setView("products")}
                         className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${view === "products" ? "bg-primary text-white" : "text-stone-400 hover:text-white"}`}
                     >
-                        <FaBoxOpen /> Manage Products
+                        <FaBoxOpen /> उत्पादने (Products)
+                    </button>
+                    <button
+                        onClick={() => setView("videos")}
+                        className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${view === "videos" ? "bg-primary text-white" : "text-stone-400 hover:text-white"}`}
+                    >
+                        <FaVideo /> व्हिडिओ (Videos)
                     </button>
                     <button
                         onClick={() => setView("inquiries")}
                         className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${view === "inquiries" ? "bg-primary text-white" : "text-stone-400 hover:text-white"}`}
                     >
-                        <FaUsers /> Inquiries
+                        <FaUsers /> चौकशी (Inquiries)
+                    </button>
+                    <button
+                        onClick={() => setView("guidance")}
+                        className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${view === "guidance" ? "bg-primary text-white" : "text-stone-400 hover:text-white"}`}
+                    >
+                        <FaLightbulb /> पीक मार्गदर्शन (Guidance)
                     </button>
                 </nav>
             </aside>
@@ -542,10 +872,12 @@ export default function AdminPage() {
                     <div>
                         <h1 className="text-3xl font-bold text-stone-900">
                             {view === "overview" && "Dashboard Overview"}
-                            {view === "products" && "Product Management"}
-                            {view === "inquiries" && "Farmer Inquiries"}
+                            {view === "products" && "उत्पादन व्यवस्थापन (Products)"}
+                            {view === "videos" && "व्हिडिओ व्यवस्थापन (Videos)"}
+                            {view === "inquiries" && "शेतकरी चौकशी (Inquiries)"}
+                            {view === "guidance" && "पीक मार्गदर्शन व्यवस्थापन (Guidance)"}
                         </h1>
-                        <p className="text-stone-500">Gaurai Agro Consultancy • Administrative Control</p>
+                        <p className="text-stone-500">Radix International • शुभारंभ Admin Panel</p>
                     </div>
                     <div className="bg-white p-2 rounded-full shadow-sm flex items-center gap-3 pr-6">
                         <div className="w-10 h-10 bg-stone-100 rounded-full flex items-center justify-center">
@@ -599,7 +931,7 @@ export default function AdminPage() {
                                 onClick={() => {
                                     setIsAddingProduct(true);
                                     setIsEditing(false);
-                                    setNewProduct({ name: "", price: "", image: "/peru-kit-card.png", benefits: [""], description: "", usageMethod: "", category: "", isFeatured: false });
+                                    setNewProduct({ name: "", price: "", image: "/peru-kit-card.png", benefits: [""], description: "", usageMethod: "", category: "", suitableCrops: "", isVisible: true, isSpecialKit: false, isFeatured: false });
                                 }}
                                 className="bg-stone-900 text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 hover:bg-black transition-all"
                             >
@@ -821,6 +1153,174 @@ export default function AdminPage() {
                     </div>
                 )}
 
+                {view === "videos" && (
+                    <div className="animate-in slide-in-from-bottom duration-500">
+                        <div className="flex justify-between items-center mb-8">
+                            <h2 className="text-xl font-bold">व्हिडिओ व्यवस्थापन (Video Management)</h2>
+                            <button
+                                onClick={() => setIsAddingVideo(true)}
+                                className="bg-stone-900 text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 hover:bg-black transition-all"
+                            >
+                                <FaPlus size={14} /> नवीन व्हिडिओ जोडा
+                            </button>
+                        </div>
+
+                        {isAddingVideo && (
+                            <div className="bg-white p-8 rounded-3xl border-2 border-primary mb-8">
+                                <div className="flex justify-between items-center mb-6">
+                                    <h3 className="text-xl font-bold">नवीन व्हिडिओ जोडा (Add Video)</h3>
+                                    <button
+                                        onClick={() => setIsAddingVideo(false)}
+                                        className="text-stone-400 hover:text-red-500 transition-all font-bold flex items-center gap-1"
+                                    >
+                                        <FaTimes /> बंद करा
+                                    </button>
+                                </div>
+                                <form onSubmit={handleAddVideo} className="space-y-6">
+                                    <div>
+                                        <label className="block text-xs font-bold text-stone-400 uppercase tracking-widest mb-2">व्हिडिओ शीर्षक (मराठीत)</label>
+                                        <input
+                                            placeholder="उदा: शेतकऱ्याचा अनुभव - डाळिंब बाग"
+                                            className="w-full p-4 bg-stone-50 rounded-2xl border border-stone-100 focus:outline-none focus:border-primary font-bold"
+                                            value={newVideo.title}
+                                            onChange={e => setNewVideo({ ...newVideo, title: e.target.value })}
+                                            required
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-bold text-stone-400 uppercase tracking-widest mb-2">व्हिडिओचा प्रकार (Video Source)</label>
+                                        <div className="flex gap-4">
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setNewVideo({ ...newVideo, isYouTube: true });
+                                                    setVideoFile(null);
+                                                }}
+                                                className={`flex-1 p-4 rounded-2xl border-2 transition-all flex items-center justify-center gap-2 font-bold ${newVideo.isYouTube ? 'border-primary bg-primary/5 text-primary' : 'border-stone-100 text-stone-400 hover:bg-stone-50'}`}
+                                            >
+                                                <FaYoutube size={20} /> YouTube
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setNewVideo({ ...newVideo, isYouTube: false, videoUrl: "" });
+                                                }}
+                                                className={`flex-1 p-4 rounded-2xl border-2 transition-all flex items-center justify-center gap-2 font-bold ${!newVideo.isYouTube ? 'border-primary bg-primary/5 text-primary' : 'border-stone-100 text-stone-400 hover:bg-stone-50'}`}
+                                            >
+                                                <FaCloudUploadAlt size={20} /> फाईल अपलोड करा
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {newVideo.isYouTube ? (
+                                        <div>
+                                            <label className="block text-xs font-bold text-stone-400 uppercase tracking-widest mb-2">YouTube व्हिडिओ URL</label>
+                                            <input
+                                                placeholder="उदा: https://www.youtube.com/watch?v=..."
+                                                className="w-full p-4 bg-stone-50 rounded-2xl border border-stone-100 focus:outline-none focus:border-primary font-medium"
+                                                value={newVideo.videoUrl}
+                                                onChange={e => setNewVideo({ ...newVideo, videoUrl: e.target.value })}
+                                                required={newVideo.isYouTube}
+                                            />
+                                        </div>
+                                    ) : (
+                                        <div>
+                                            <label className="block text-xs font-bold text-stone-400 uppercase tracking-widest mb-2">व्हिडिओ फाईल निवडा (Cloudinary)</label>
+                                            <div className="relative group">
+                                                <input
+                                                    type="file"
+                                                    accept="video/*"
+                                                    className="hidden"
+                                                    id="video-upload"
+                                                    onChange={e => setVideoFile(e.target.files?.[0] || null)}
+                                                    required={!newVideo.isYouTube && !videoFile}
+                                                />
+                                                <label
+                                                    htmlFor="video-upload"
+                                                    className={`w-full p-8 rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center gap-2 cursor-pointer ${videoFile ? 'border-primary bg-primary/5' : 'border-stone-200 hover:border-primary/50'}`}
+                                                >
+                                                    <FaCloudUploadAlt size={32} className={videoFile ? 'text-primary' : 'text-stone-300'} />
+                                                    <span className="font-bold text-stone-600">
+                                                        {videoFile ? videoFile.name : "व्हिडिओ निवडा क्लिक करा"}
+                                                    </span>
+                                                    {videoFile && (
+                                                        <span className="text-xs text-stone-400">{(videoFile.size / (1024 * 1024)).toFixed(2)} MB</span>
+                                                    )}
+                                                </label>
+                                            </div>
+                                        </div>
+                                    )}
+                                    <button
+                                        type="submit"
+                                        disabled={isLoading}
+                                        className="w-full p-5 bg-primary text-white rounded-2xl font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] transition-all disabled:opacity-50"
+                                    >
+                                        {isLoading ? "जोडत आहे..." : "व्हिडिओ जोडा"}
+                                    </button>
+                                </form>
+                            </div>
+                        )}
+
+                        {videos.length === 0 && !isLoading && (
+                            <div className="bg-white p-20 rounded-[3rem] text-center border-2 border-dashed border-stone-200">
+                                <div className="w-20 h-20 bg-stone-50 rounded-3xl flex items-center justify-center mx-auto mb-6 text-stone-300">
+                                    <FaVideo size={40} />
+                                </div>
+                                <h3 className="text-2xl font-bold text-stone-900 mb-2">कोणतेही व्हिडिओ नाहीत</h3>
+                                <p className="text-stone-500 mb-8">शेतकऱ्यांचे अनुभव व्हिडिओ जोडण्यासाठी वरील बटण वापरा.</p>
+                            </div>
+                        )}
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                            {videos.map(video => (
+                                <div key={video.id} className={`bg-white rounded-3xl overflow-hidden shadow-sm border ${video.isVisible ? 'border-stone-100' : 'border-red-200 opacity-60'}`}>
+                                    <div className="relative aspect-video bg-stone-900">
+                                        {video.isYouTube ? (
+                                            <div className="absolute inset-0 flex items-center justify-center bg-red-600/20">
+                                                <FaYoutube className="text-red-500" size={48} />
+                                            </div>
+                                        ) : (
+                                            <div className="absolute inset-0 flex items-center justify-center">
+                                                <FaVideo className="text-stone-500" size={48} />
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="p-6">
+                                        <div className="flex items-center gap-2 mb-3">
+                                            {video.isYouTube ? (
+                                                <span className="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded-full font-bold">YouTube</span>
+                                            ) : (
+                                                <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full font-bold">Local</span>
+                                            )}
+                                            {!video.isVisible && (
+                                                <span className="text-xs bg-stone-100 text-stone-500 px-2 py-0.5 rounded-full font-bold">लपलेले</span>
+                                            )}
+                                        </div>
+                                        <h3 className="font-bold text-stone-900 mb-4">{video.title}</h3>
+                                        <div className="flex gap-2">
+                                            <button
+                                                onClick={() => handleToggleVideoVisibility(video.id, video.isVisible)}
+                                                className={`flex-1 p-3 rounded-xl flex items-center justify-center gap-2 transition-all ${video.isVisible ? 'bg-stone-100 text-stone-600 hover:bg-stone-200' : 'bg-green-100 text-green-600 hover:bg-green-200'}`}
+                                                title={video.isVisible ? "लपवा" : "दाखवा"}
+                                            >
+                                                {video.isVisible ? <FaEyeSlash size={16} /> : <FaEye size={16} />}
+                                                {video.isVisible ? "लपवा" : "दाखवा"}
+                                            </button>
+                                            <button
+                                                onClick={() => handleDeleteVideo(video.id)}
+                                                className="p-3 bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all"
+                                                title="हटवा"
+                                            >
+                                                <FaTrash size={16} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
                 {view === "inquiries" && (
                     <div className="animate-in slide-in-from-right duration-500">
                         <div className="bg-white rounded-[3rem] shadow-sm border border-stone-100 overflow-hidden">
@@ -888,6 +1388,158 @@ export default function AdminPage() {
                                     )}
                                 </tbody>
                             </table>
+                        </div>
+                    </div>
+                )}
+
+                {view === "guidance" && (
+                    <div className="animate-in slide-in-from-right duration-500">
+                        <div className="flex justify-between items-center mb-12">
+                            <div>
+                                <h2 className="text-xl font-bold">पीक मार्गदर्शन व्यवस्थापन (Guidance)</h2>
+                                <p className="text-stone-500 text-sm">शेतकऱ्यांसाठी पीक निहाय मार्गदर्शन माहिती व्यवस्थापित करा.</p>
+                            </div>
+                            <button
+                                onClick={() => {
+                                    setIsAddingGuidance(true);
+                                    setIsEditingGuidance(false);
+                                    setEditingGuidanceId(null);
+                                    setNewGuidance({ cropName: "पेरू", image: "", problems: "", solutions: "", usageMethod: "", advice: "" });
+                                }}
+                                className="bg-primary text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 hover:bg-stone-900 transition-all shadow-lg shadow-primary/20"
+                            >
+                                <FaPlus size={14} /> नवीन मार्गदर्शन जोडा
+                            </button>
+                        </div>
+
+                        {isAddingGuidance && (
+                            <div className="bg-white p-10 rounded-[3rem] border-2 border-primary mb-12 shadow-2xl animate-in zoom-in-95 duration-300">
+                                <div className="flex justify-between items-center mb-8">
+                                    <h3 className="text-2xl font-bold">{isEditingGuidance ? "मार्गदर्शन सुधारित करा" : "नवीन मार्गदर्शन जोडा"}</h3>
+                                    <button onClick={() => setIsAddingGuidance(false)} className="text-stone-400 hover:text-red-500 transition-all font-bold flex items-center gap-2">
+                                        <FaTimes /> बंद करा
+                                    </button>
+                                </div>
+                                <form onSubmit={handleAddGuidance} className="space-y-6">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <label className="block text-xs font-bold text-stone-400 uppercase tracking-widest mb-3">पीक निवडा</label>
+                                            <select
+                                                className="w-full p-4 bg-stone-50 rounded-2xl border border-stone-100 focus:outline-none focus:border-primary font-bold appearance-none"
+                                                value={newGuidance.cropName}
+                                                onChange={e => setNewGuidance({ ...newGuidance, cropName: e.target.value })}
+                                            >
+                                                <option value="पेरू">पेरू (Guava)</option>
+                                                <option value="डाळिंब">डाळिंब (Pomegranate)</option>
+                                                <option value="केळी">केळी (Banana)</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-stone-400 uppercase tracking-widest mb-3">पिकाचे छायाचित्र (Image)</label>
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                className="w-full p-3 bg-stone-50 rounded-2xl border border-stone-100"
+                                                onChange={e => setCropImage(e.target.files?.[0] || null)}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <label className="block text-xs font-bold text-stone-400 uppercase tracking-widest mb-3">मुख्य समस्या (Problems)</label>
+                                            <textarea
+                                                className="w-full p-4 bg-stone-50 rounded-2xl border border-stone-100 focus:outline-none focus:border-primary min-h-[120px]"
+                                                value={newGuidance.problems}
+                                                onChange={e => setNewGuidance({ ...newGuidance, problems: e.target.value })}
+                                                placeholder="पिकातील मुख्य समस्या लिहा..."
+                                                required
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-stone-400 uppercase tracking-widest mb-3">जैविक उपाय (Solutions)</label>
+                                            <textarea
+                                                className="w-full p-4 bg-stone-50 rounded-2xl border border-stone-100 focus:outline-none focus:border-primary min-h-[120px]"
+                                                value={newGuidance.solutions}
+                                                onChange={e => setNewGuidance({ ...newGuidance, solutions: e.target.value })}
+                                                placeholder="त्यावरील जैविक उपाय लिहा..."
+                                                required
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <label className="block text-xs font-bold text-stone-400 uppercase tracking-widest mb-3">वापरण्याची पद्धत</label>
+                                            <textarea
+                                                className="w-full p-4 bg-stone-50 rounded-2xl border border-stone-100 focus:outline-none focus:border-primary min-h-[120px]"
+                                                value={newGuidance.usageMethod}
+                                                onChange={e => setNewGuidance({ ...newGuidance, usageMethod: e.target.value })}
+                                                placeholder="उत्पादने वापरण्याची योग्य पद्धत लिहा..."
+                                                required
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-stone-400 uppercase tracking-widest mb-3">मार्गदर्शन / सल्ला</label>
+                                            <textarea
+                                                className="w-full p-4 bg-stone-50 rounded-2xl border border-stone-100 focus:outline-none focus:border-primary min-h-[120px]"
+                                                value={newGuidance.advice}
+                                                onChange={e => setNewGuidance({ ...newGuidance, advice: e.target.value })}
+                                                placeholder="शेतकऱ्यांसाठी विशेष सल्ला/टीप..."
+                                                required
+                                            />
+                                        </div>
+                                    </div>
+                                    <button
+                                        type="submit"
+                                        disabled={isLoading}
+                                        className="w-full p-5 bg-stone-900 text-white rounded-3xl font-black shadow-2xl hover:bg-black transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+                                    >
+                                        {isLoading ? (
+                                            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                        ) : (
+                                            <FaCheck />
+                                        )}
+                                        {isEditingGuidance ? "माहिती अपडेट करा" : "मार्गदर्शन माहिती जतन करा"}
+                                    </button>
+                                </form>
+                            </div>
+                        )}
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                            {guidances.map(guidance => (
+                                <div key={guidance.id} className="bg-white p-8 rounded-[3rem] border border-stone-100 shadow-sm group hover:border-primary/20 transition-all relative">
+                                    <div className="absolute top-6 right-6 flex gap-2">
+                                        <button onClick={() => handleStartEditGuidance(guidance)} className="bg-stone-100 text-stone-600 p-3 rounded-xl hover:bg-primary hover:text-white transition-all">
+                                            <FaEdit size={14} />
+                                        </button>
+                                        <button onClick={() => handleDeleteGuidance(guidance.id)} className="bg-stone-100 text-red-500 p-3 rounded-xl hover:bg-red-500 hover:text-white transition-all">
+                                            <FaTrash size={14} />
+                                        </button>
+                                    </div>
+                                    <div className="flex items-center gap-3 mb-6">
+                                        <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary overflow-hidden">
+                                            {guidance.image ? (
+                                                <img src={guidance.image} alt={guidance.cropName} className="w-full h-full object-cover" />
+                                            ) : (
+                                                <FaLightbulb />
+                                            )}
+                                        </div>
+                                        <div>
+                                            <h3 className="font-bold text-xl">{guidance.cropName} मार्गदर्शन</h3>
+                                            <p className="text-stone-400 text-xs font-bold uppercase tracking-widest">Crop Solutions</p>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-4 text-sm">
+                                        <div className="p-4 bg-stone-50 rounded-2xl">
+                                            <p className="font-black text-[10px] text-stone-400 uppercase tracking-widest mb-1">समस्या</p>
+                                            <p className="text-stone-600 line-clamp-2">{guidance.problems}</p>
+                                        </div>
+                                        <div className="p-4 bg-green-50/50 rounded-2xl border border-green-100">
+                                            <p className="font-black text-[10px] text-green-600 uppercase tracking-widest mb-1">उपाय</p>
+                                            <p className="text-stone-600 line-clamp-2">{guidance.solutions}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 )}

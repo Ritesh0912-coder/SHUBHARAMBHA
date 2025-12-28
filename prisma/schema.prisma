@@ -12,19 +12,34 @@ datasource db {
 }
 
 model Product {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  name         String
-  price        String
-  image        String
-  benefits     String[]
-  description  String?
-  usageMethod  String?
-  category     String?
-  isFeatured   Boolean  @default(false)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  price         String
+  image         String
+  benefits      String[]
+  description   String?
+  usageMethod   String?
+  category      String?
+  suitableCrops String[]
+  isVisible     Boolean  @default(true)
+  isSpecialKit  Boolean  @default(false)
+  isFeatured    Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   @@map("products")
+}
+
+model FarmerVideo {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  title     String
+  videoUrl  String
+  isYouTube Boolean  @default(false)
+  isVisible Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("farmer_videos")
 }
 
 model Inquiry {
@@ -38,4 +53,18 @@ model Inquiry {
   createdAt DateTime @default(now())
 
   @@map("inquiries")
+}
+
+model CropGuidance {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  cropName     String   // e.g., "पेरू", "डाळिंब", "केळी"
+  image        String?  // पिकाचे छायाचित्र
+  problems     String   // समस्या
+  solutions    String   // उपाय
+  usageMethod  String   // वापरण्याची पद्धत
+  advice       String   // मार्गदर्शन / सल्ला
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("crop_guidance")
 }
