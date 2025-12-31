@@ -1,26 +1,31 @@
+"use client";
 import { FaWhatsapp, FaEnvelope, FaMapMarkerAlt, FaClock, FaCheckCircle } from "react-icons/fa";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function ContactPage() {
+    const { t } = useLanguage();
+    const T: any = t;
+
     const contactPoints = [
         {
             icon: <FaWhatsapp className="text-3xl text-primary" />,
-            title: "आमचा नंबर",
+            title: T.contact?.phoneTitle,
             info: "+91 77986 93233",
-            sub: "सकाळी 9 ते संध्याकाळी 7",
+            sub: T.contact?.phoneSub,
             link: "https://wa.me/917798693233"
         },
         {
             icon: <FaEnvelope className="text-3xl text-primary" />,
-            title: "ईमेल",
+            title: T.contact?.emailTitle,
             info: "santoshshinde309@gmail.com",
-            sub: "कोणत्याही शंकांसाठी संपर्क करा",
+            sub: T.contact?.emailSub,
             link: "mailto:santoshshinde309@gmail.com"
         },
         {
             icon: <FaMapMarkerAlt className="text-3xl text-primary" />,
-            title: "पत्ता (Address)",
+            title: T.contact?.addressTitle,
             info: "Radix International",
-            sub: "पुणे, महाराष्ट्र, भारत",
+            sub: "Pune, Maharashtra, India",
             link: "#"
         }
     ];
@@ -30,8 +35,8 @@ export default function ContactPage() {
             {/* Header */}
             <section className="bg-primary pt-24 pb-16 px-4 text-white text-center">
                 <div className="max-w-4xl mx-auto">
-                    <h1 className="text-4xl md:text-5xl font-extrabold mb-4 font-marathi">संपर्क करा (Contact Us)</h1>
-                    <p className="text-xl text-stone-200">तुमच्या बागेसाठी योग्य सल्ल्याची गरज आहे? आम्ही एका कॉलवर उपलब्ध आहोत.</p>
+                    <h1 className="text-4xl md:text-5xl font-extrabold mb-4 font-marathi">{T.contact?.title}</h1>
+                    <p className="text-xl text-stone-200">{T.contact?.desc}</p>
                 </div>
             </section>
 
@@ -62,15 +67,15 @@ export default function ContactPage() {
                 <div className="max-w-7xl mx-auto">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
                         <div className="bg-white p-12 rounded-[3.5rem] shadow-sm border border-stone-100">
-                            <h2 className="text-4xl font-bold text-stone-900 mb-8 font-marathi">तज्ञ मार्गदर्शन घ्या</h2>
+                            <h2 className="text-4xl font-bold text-stone-900 mb-8 font-marathi">{T.contact?.expertGuidance}</h2>
                             <div className="space-y-8">
                                 <div className="flex gap-4">
                                     <div className="w-12 h-12 bg-primary/10 rounded-2xl flex-shrink-0 flex items-center justify-center text-primary">
                                         <FaCheckCircle />
                                     </div>
                                     <div>
-                                        <h4 className="text-xl font-bold mb-2">पीक नियोजन</h4>
-                                        <p className="text-stone-600 leading-relaxed font-marathi">छाटणीपासून ते फळ काढणीपर्यंतच्या सर्व अवस्थांचे सूक्ष्म नियोजन.</p>
+                                        <h4 className="text-xl font-bold mb-2">{T.contact?.cropPlanning}</h4>
+                                        <p className="text-stone-600 leading-relaxed font-marathi">{T.contact?.cropPlanningDesc}</p>
                                     </div>
                                 </div>
                                 <div className="flex gap-4">
@@ -78,16 +83,16 @@ export default function ContactPage() {
                                         <FaCheckCircle />
                                     </div>
                                     <div>
-                                        <h4 className="text-xl font-bold mb-2">किड व रोग नियंत्रण</h4>
-                                        <p className="text-stone-600 leading-relaxed font-marathi">जैविक पद्धतीने किड व रोगांवर १००% मात करण्यासाठी सल्ला.</p>
+                                        <h4 className="text-xl font-bold mb-2">{T.contact?.pestControl}</h4>
+                                        <p className="text-stone-600 leading-relaxed font-marathi">{T.contact?.pestControlDesc}</p>
                                     </div>
                                 </div>
                             </div>
                             <div className="mt-12 bg-stone-900 rounded-3xl p-8 text-white relative overflow-hidden">
                                 <FaClock className="absolute -bottom-6 -right-6 text-white/5 text-8xl" />
-                                <p className="font-bold text-lg mb-2">उपलब्ध वेळ:</p>
-                                <p className="text-primary text-2xl font-bold">सकाळी 09:00 - संध्याकाळी 07:00</p>
-                                <p className="mt-4 text-stone-400 italic">प्रत्येक रविवार - सुट्टी असू शकते.</p>
+                                <p className="font-bold text-lg mb-2">{T.contact?.availableTime}</p>
+                                <p className="text-primary text-2xl font-bold">{T.contact?.timeRange}</p>
+                                <p className="mt-4 text-stone-400 italic">{T.contact?.sundayNote}</p>
                             </div>
                         </div>
 
@@ -96,20 +101,20 @@ export default function ContactPage() {
                                 <FaWhatsapp size={48} />
                             </div>
                             <h2 className="text-4xl md:text-6xl font-extrabold text-stone-900 mb-8 leading-tight font-marathi">
-                                शुभारंभ चे <br />
-                                <span className="text-primary italic">थेट WhatsApp</span> <br />
-                                द्वारे मार्गदर्शन
+                                {T.contact?.whatsappTitle} <br />
+                                <span className="text-primary italic">{T.contact?.whatsappSub}</span> <br />
+                                {T.contact?.whatsappEnd}
                             </h2>
                             <p className="text-xl text-stone-600 mb-10 leading-relaxed max-w-lg">
-                                आम्ही उत्पादनांचा केवळ पुरवठा करत नाही, तर ते कसे वापरावेत याचे संपूर्ण तंत्र आपल्याला WhatsApp वर देतो.
+                                {T.contact?.whatsappDesc}
                             </p>
                             <a
-                                href="https://wa.me/917798693233?text=नमस्कार, मला माझ्या बागेसाठी योग्य मार्गदर्शनाची आवशक्यता आहे."
+                                href="https://wa.me/917798693233?text=Hello, I need guidance for my farm."
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="btn-whatsapp text-2xl px-12 py-5 justify-center inline-flex shadow-2xl"
                             >
-                                आमच्याशी बोला
+                                {T.contact?.chatBtn}
                             </a>
                         </div>
                     </div>
@@ -119,9 +124,9 @@ export default function ContactPage() {
             {/* Working Areas */}
             <section className="py-24 px-4">
                 <div className="max-w-7xl mx-auto text-center">
-                    <p className="text-stone-400 font-bold uppercase tracking-[0.5em] mb-8">Serving Areas</p>
+                    <p className="text-stone-400 font-bold uppercase tracking-[0.5em] mb-8">{T.contact?.servingAreas}</p>
                     <div className="flex flex-wrap justify-center gap-6">
-                        {['बारामती', 'इंदापूर', 'फलटण', 'आटपाडी', 'पुणे', 'नगर'].map((city, i) => (
+                        {T.contact?.cities.map((city: string, i: number) => (
                             <div key={i} className="bg-stone-50 border border-stone-200 px-8 py-3 rounded-full text-stone-600 font-bold">
                                 {city}
                             </div>

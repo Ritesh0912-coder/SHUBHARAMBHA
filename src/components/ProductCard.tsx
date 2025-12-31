@@ -1,6 +1,9 @@
+"use client";
 import Image from "next/image";
 import Link from "next/link";
 import { FaWhatsapp } from "react-icons/fa";
+import { useLanguage } from "@/context/LanguageContext";
+import { toEnglishNumerals } from "@/lib/format";
 
 interface ProductCardProps {
     id: string;
@@ -12,17 +15,20 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ name, price, image, benefits, id, suitableCrops }: ProductCardProps) {
-    const whatsappMessage = `नमस्कार,
-मला शुभारंभ ब्रँडचे ${name} (${price}) घ्यायचे आहे.
+    const { t } = useLanguage();
+    const T: any = t;
 
-📍 जिल्हा:
-🌾 मुख्य पीक: ${(suitableCrops && suitableCrops.length > 0) ? suitableCrops.join(", ") : ""}
-📦 प्रमाण:
-📞 मोबाईल:
-🏡 पत्ता:
+    const whatsappMessage = `${T.common?.waMsgHeader}
+    
+${T.common?.waProductLabel}: ${name} (${price})
 
-कृपया मार्गदर्शन करा.
-धन्यवाद.`;
+📍 ${T.common?.waDistrictLabel}:
+🌾 ${T.common?.waCropLabel}: ${(suitableCrops && suitableCrops.length > 0) ? suitableCrops.join(", ") : ""}
+📦 Quantum:
+📞 Mobile:
+🏡 Address:
+
+${T.common?.waAdviceRequest}`;
 
     const whatsappUrl = `https://wa.me/917798693233?text=${encodeURIComponent(whatsappMessage)}`;
 
@@ -38,7 +44,7 @@ export default function ProductCard({ name, price, image, benefits, id, suitable
             </div>
             <div className="p-6 flex-grow flex flex-col">
                 <h3 className="text-xl font-bold text-stone-900 mb-2">{name}</h3>
-                <p className="text-primary font-bold text-2xl mb-4">₹{price}</p>
+                <p className="text-primary font-bold text-2xl mb-4">{toEnglishNumerals(price)}</p>
                 <ul className="mb-6 space-y-2 flex-grow">
                     {benefits.map((benefit, index) => (
                         <li key={index} className="text-stone-600 text-sm flex items-start gap-2 text-left">
@@ -51,13 +57,13 @@ export default function ProductCard({ name, price, image, benefits, id, suitable
                         href={`/products#${id}`}
                         className="block text-center border border-primary text-primary px-4 py-2.5 rounded-full font-bold hover:bg-stone-50 transition-all"
                     >
-                        माहिती पाहा
+                        {T.common?.viewDetails}
                     </Link>
                     <Link
                         href="/solutions"
                         className="block text-center bg-stone-100 text-stone-600 px-4 py-2.5 rounded-full font-bold hover:bg-stone-200 transition-all"
                     >
-                        Solutions / सल्ला
+                        {T.common?.solutionsAdvice}
                     </Link>
                     <a
                         href={whatsappUrl}
@@ -66,7 +72,7 @@ export default function ProductCard({ name, price, image, benefits, id, suitable
                         className="btn-whatsapp w-full justify-center"
                     >
                         <FaWhatsapp size={20} />
-                        ऑर्डर करा
+                        {T.common?.orderNow}
                     </a>
                 </div>
             </div>

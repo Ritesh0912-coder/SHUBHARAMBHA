@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import DeliveryBanner from "@/components/DeliveryBanner";
+import { LanguageProvider } from "@/context/LanguageContext";
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -32,13 +33,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${outfit.variable} antialiased font-sans`}>
-        <DeliveryBanner />
-        <Navbar />
-        <main className="min-h-screen">
-          {children}
-        </main>
-        <Footer />
-        <WhatsAppButton />
+        <LanguageProvider>
+          <DeliveryBanner />
+          <Navbar />
+          <main className="min-h-screen">
+            {children}
+          </main>
+          <Footer />
+          <WhatsAppButton />
+        </LanguageProvider>
       </body>
     </html>
   );

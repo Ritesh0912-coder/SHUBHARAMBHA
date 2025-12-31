@@ -1,9 +1,12 @@
 "use client";
 import { FaWhatsapp } from "react-icons/fa";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function WhatsAppButton() {
+    const { t } = useLanguage();
+    const T: any = t;
     const phoneNumber = "917798693233";
-    const message = "नमस्कार 🙏, मला शुभारंभ ब्रँडच्या उत्पादनांबद्दल माहिती हवी आहे.";
+    const message = T.common?.waMsgHeader || "Hello, I want to inquire about products.";
     const encodedMessage = encodeURIComponent(message);
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
 
@@ -17,7 +20,7 @@ export default function WhatsAppButton() {
         >
             <FaWhatsapp size={32} />
             <span className="absolute right-full mr-4 bg-white text-stone-900 px-4 py-2 rounded-lg text-sm font-bold opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-xl border border-stone-100">
-                आमच्याशी बोला
+                {T.contact?.chatBtn || "Chat with us"}
             </span>
         </a>
     );

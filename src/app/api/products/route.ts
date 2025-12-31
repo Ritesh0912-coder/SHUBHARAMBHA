@@ -21,19 +21,35 @@ export async function GET() {
 export async function POST(request: Request) {
     try {
         const body = await request.json();
-        const { name, price, image, benefits, description, usageMethod, category, isFeatured, suitableCrops, isVisible, isSpecialKit } = body;
+        const {
+            name, name_hi, name_mr,
+            price, price_hi, price_mr,
+            image,
+            benefits, benefits_hi, benefits_mr,
+            description, description_hi, description_mr,
+            usageMethod, usageMethod_hi, usageMethod_mr,
+            category, category_hi, category_mr,
+            isFeatured,
+            suitableCrops, suitableCrops_hi, suitableCrops_mr,
+            isVisible,
+            isSpecialKit
+        } = body;
 
         const product = await prisma.product.create({
             data: {
-                name,
-                price,
+                name, name_hi, name_mr,
+                price, price_hi, price_mr,
                 image,
                 benefits: Array.isArray(benefits) ? benefits : (typeof benefits === 'string' ? benefits.split(',').map(b => b.trim()).filter(Boolean) : []),
-                description,
-                usageMethod,
-                category,
+                benefits_hi: Array.isArray(benefits_hi) ? benefits_hi : (typeof benefits_hi === 'string' ? benefits_hi.split(',').map(b => b.trim()).filter(Boolean) : []),
+                benefits_mr: Array.isArray(benefits_mr) ? benefits_mr : (typeof benefits_mr === 'string' ? benefits_mr.split(',').map(b => b.trim()).filter(Boolean) : []),
+                description, description_hi, description_mr,
+                usageMethod, usageMethod_hi, usageMethod_mr,
+                category, category_hi, category_mr,
                 isFeatured: isFeatured || false,
                 suitableCrops: Array.isArray(suitableCrops) ? suitableCrops : (typeof suitableCrops === 'string' ? suitableCrops.split(',').map(s => s.trim()).filter(Boolean) : []),
+                suitableCrops_hi: Array.isArray(suitableCrops_hi) ? suitableCrops_hi : (typeof suitableCrops_hi === 'string' ? suitableCrops_hi.split(',').map(s => s.trim()).filter(Boolean) : []),
+                suitableCrops_mr: Array.isArray(suitableCrops_mr) ? suitableCrops_mr : (typeof suitableCrops_mr === 'string' ? suitableCrops_mr.split(',').map(s => s.trim()).filter(Boolean) : []),
                 isVisible: isVisible !== false,
                 isSpecialKit: isSpecialKit || false,
             },

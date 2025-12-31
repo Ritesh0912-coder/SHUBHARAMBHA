@@ -14,13 +14,27 @@ datasource db {
 model Product {
   id            String   @id @default(auto()) @map("_id") @db.ObjectId
   name          String
+  name_hi       String?
+  name_mr       String?
   price         String
+  price_hi      String?
+  price_mr      String?
   image         String
   benefits      String[]
+  benefits_hi   String[]
+  benefits_mr   String[]
   description   String?
+  description_hi String?
+  description_mr String?
   usageMethod   String?
+  usageMethod_hi String?
+  usageMethod_mr String?
   category      String?
+  category_hi   String?
+  category_mr   String?
   suitableCrops String[]
+  suitableCrops_hi String[]
+  suitableCrops_mr String[]
   isVisible     Boolean  @default(true)
   isSpecialKit  Boolean  @default(false)
   isFeatured    Boolean  @default(false)
@@ -58,11 +72,21 @@ model Inquiry {
 model CropGuidance {
   id           String   @id @default(auto()) @map("_id") @db.ObjectId
   cropName     String   // e.g., "पेरू", "डाळिंब", "केळी"
+  cropName_hi  String?
+  cropName_mr  String?
   image        String?  // पिकाचे छायाचित्र
   problems     String   // समस्या
+  problems_hi  String?
+  problems_mr  String?
   solutions    String   // उपाय
+  solutions_hi String?
+  solutions_mr String?
   usageMethod  String   // वापरण्याची पद्धत
+  usageMethod_hi String?
+  usageMethod_mr String?
   advice       String   // मार्गदर्शन / सल्ला
+  advice_hi    String?
+  advice_mr    String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 

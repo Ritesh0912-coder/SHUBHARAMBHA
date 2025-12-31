@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { FaPlay, FaYoutube, FaExternalLinkAlt } from "react-icons/fa";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface FarmerVideo {
     id: string;
@@ -11,6 +12,8 @@ interface FarmerVideo {
 }
 
 export default function FarmerVideos() {
+    const { t } = useLanguage();
+    const T: any = t;
     const [videos, setVideos] = useState<FarmerVideo[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -64,10 +67,10 @@ export default function FarmerVideos() {
             <div className="max-w-7xl mx-auto">
                 <div className="text-center mb-20">
                     <h2 className="text-4xl md:text-5xl font-black text-stone-900 mb-6 font-marathi">
-                        शेतकऱ्यांचा अनुभव (Farmer Experience)
+                        {T.farmerVideos?.title}
                     </h2>
                     <p className="text-xl text-stone-600 max-w-2xl mx-auto">
-                        आमच्या तंत्रज्ञानाचा वापर करून यशस्वी झालेल्या शेतकरी मित्रांचे प्रत्यक्ष अनुभव पहा.
+                        {T.farmerVideos?.subTitle}
                     </p>
                     <div className="h-1.5 w-24 bg-primary mx-auto rounded-full mt-6" />
                 </div>
@@ -94,7 +97,7 @@ export default function FarmerVideos() {
                                         ) : (
                                             <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center text-stone-400">
                                                 <FaYoutube size={48} className="mb-4 opacity-20" />
-                                                <p className="font-bold">व्हिडिओ उपलब्ध नाही</p>
+                                                <p className="font-bold">{T.farmerVideos?.noVideo}</p>
                                                 <p className="text-xs mt-2">Invalid YouTube URL</p>
                                             </div>
                                         )}
@@ -118,7 +121,7 @@ export default function FarmerVideos() {
                                             </div>
                                             <div>
                                                 <span className="text-xs font-black text-stone-400 uppercase tracking-[0.2em] block">
-                                                    {video.isYouTube ? "YouTube " : "EXPERIENCE "} विडिओ
+                                                    {video.isYouTube ? T.farmerVideos?.ytLabel : T.farmerVideos?.expLabel}
                                                 </span>
                                             </div>
                                         </div>

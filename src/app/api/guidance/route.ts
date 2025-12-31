@@ -24,7 +24,14 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: "Invalid or empty JSON body" }, { status: 400 });
         }
 
-        const { cropName, problems, solutions, usageMethod, advice, image } = body;
+        const {
+            cropName, cropName_hi, cropName_mr,
+            problems, problems_hi, problems_mr,
+            solutions, solutions_hi, solutions_mr,
+            usageMethod, usageMethod_hi, usageMethod_mr,
+            advice, advice_hi, advice_mr,
+            image
+        } = body;
 
         if (!cropName || !problems || !solutions || !usageMethod || !advice) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -32,12 +39,12 @@ export async function POST(request: Request) {
 
         const newGuidance = await prisma.cropGuidance.create({
             data: {
-                cropName,
+                cropName, cropName_hi, cropName_mr,
                 image,
-                problems,
-                solutions,
-                usageMethod,
-                advice,
+                problems, problems_hi, problems_mr,
+                solutions, solutions_hi, solutions_mr,
+                usageMethod, usageMethod_hi, usageMethod_mr,
+                advice, advice_hi, advice_mr,
             },
         });
 
