@@ -8,7 +8,7 @@ export const toEnglishNumerals = (str: string | undefined | null): string => {
     const devNums = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९'];
 
     // 1. Replace all Devanagari digits with English ones
-    let result = s.replace(/[०-९]/g, (match) => devNums.indexOf(match).toString());
+    const result = s.replace(/[०-९]/g, (match) => devNums.indexOf(match).toString());
 
     // 2. If the string contains numbers, ensure it has exactly one ₹ symbol at the start
     if (/\d/.test(result)) {

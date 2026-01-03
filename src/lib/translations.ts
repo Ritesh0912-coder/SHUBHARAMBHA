@@ -5,7 +5,7 @@ export const translations = {
         nav: {
             home: "Home",
             products: "Our Products",
-            solutions: "Crop Guidance",
+            solutions: "Crop Guidance / Advice",
             videos: "Farmer Reviews",
             howItWorks: "How It Works",
             about: "About Us",
@@ -175,7 +175,7 @@ export const translations = {
         nav: {
             home: "होम",
             products: "हमारे उत्पाद",
-            solutions: "फसल मार्गदर्शन",
+            solutions: "फसल मार्गदर्शन / सलाह",
             videos: "किसान अनुभव",
             howItWorks: "कैसे काम करता है",
             about: "हमारे बारे में",
@@ -345,7 +345,7 @@ export const translations = {
         nav: {
             home: "होम",
             products: "आमची उत्पादने",
-            solutions: "पिक मार्गदर्शन",
+            solutions: "पिक मार्गदर्शन / सल्ला",
             videos: "शेतकरी अनुभव",
             howItWorks: "कसे कार्य करते",
             about: "आमच्याबद्दल",

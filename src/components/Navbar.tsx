@@ -3,11 +3,12 @@ import Link from "next/link";
 import Image from "next/image";
 import { useLanguage } from "@/context/LanguageContext";
 import { useState } from "react";
-import { FaGlobe, FaChevronDown } from "react-icons/fa";
+import { FaGlobe, FaChevronDown, FaBars, FaTimes } from "react-icons/fa";
 
 export default function Navbar() {
     const { t, language, setLanguage } = useLanguage();
     const [isLangOpen, setIsLangOpen] = useState(false);
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     const toggleLang = () => setIsLangOpen(!isLangOpen);
 
@@ -48,10 +49,13 @@ export default function Navbar() {
                     <div className="hidden md:flex space-x-6 lg:space-x-8 items-center">
                         <Link href="/" className="text-stone-700 hover:text-primary font-medium text-sm lg:text-base">{t.nav.home}</Link>
                         <Link href="/products" className="text-stone-700 hover:text-primary font-medium text-sm lg:text-base">{t.nav.products}</Link>
-                        <Link href="/solutions" className="text-stone-700 hover:text-primary font-medium text-sm lg:text-base">{t.nav.solutions}</Link>
-                        <Link href="/#videos" className="text-stone-700 hover:text-primary font-medium text-sm lg:text-base">{t.nav.videos}</Link>
+
                         <Link href="/about" className="text-stone-700 hover:text-primary font-medium text-sm lg:text-base">{t.nav.about}</Link>
-                        <Link href="/contact" className="text-stone-700 hover:text-primary font-medium text-sm lg:text-base tracking-tight">{t.nav.contact}</Link>
+
+
+                        <Link href="/solutions" className="border-2 border-primary text-primary px-4 py-1.5 rounded-full font-bold hover:bg-stone-50 transition-all text-sm lg:text-base whitespace-nowrap">
+                            {t.nav.solutions}
+                        </Link>
 
                         {/* Language Switcher */}
                         <div className="relative">
@@ -83,25 +87,53 @@ export default function Navbar() {
                             {t.nav.order}
                         </Link>
                     </div>
-                    {/* Mobile menu */}
-                    <div className="md:hidden flex items-center gap-2">
+                    {/* Mobile toggle */}
+                    <div className="md:hidden flex items-center gap-3">
                         <button onClick={toggleLang} className="flex items-center gap-1.5 bg-stone-100 px-2.5 py-1.5 rounded-full border border-stone-200">
                             <FaGlobe className="text-stone-500 text-sm" />
                             <span className="font-bold text-stone-700 text-xs">{langNames[language]}</span>
                         </button>
-                        {isLangOpen && (
-                            <div className="absolute top-20 right-4 w-32 bg-white rounded-xl shadow-xl border border-stone-100 overflow-hidden py-1 z-50">
-                                <button onClick={() => selectLang('en')} className="w-full text-left px-4 py-2 text-sm hover:bg-stone-50">English</button>
-                                <button onClick={() => selectLang('hi')} className="w-full text-left px-4 py-2 text-sm hover:bg-stone-50">हिंदी</button>
-                                <button onClick={() => selectLang('mr')} className="w-full text-left px-4 py-2 text-sm hover:bg-stone-50">मराठी</button>
-                            </div>
-                        )}
-                        <Link href="/products" className="bg-primary text-white px-4 py-1.5 rounded-full text-xs font-bold">
+                        <button
+                            onClick={() => setIsMenuOpen(!isMenuOpen)}
+                            className="p-2 text-primary hover:bg-stone-100 rounded-lg transition-colors border-2 border-primary/10"
+                        >
+                            {isMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {/* Mobile language dropdown overlay */}
+            {isLangOpen && (
+                <div className="md:hidden absolute top-20 right-4 w-32 bg-white rounded-xl shadow-xl border border-stone-100 overflow-hidden py-1 z-[60]">
+                    <button onClick={() => selectLang('en')} className="w-full text-left px-4 py-2 text-sm hover:bg-stone-50">English</button>
+                    <button onClick={() => selectLang('hi')} className="w-full text-left px-4 py-2 text-sm hover:bg-stone-50">हिंदी</button>
+                    <button onClick={() => selectLang('mr')} className="w-full text-left px-4 py-2 text-sm hover:bg-stone-50">मराठी</button>
+                </div>
+            )}
+
+            {/* Mobile menu drawer */}
+            {isMenuOpen && (
+                <div className="md:hidden fixed inset-x-0 top-20 bg-white border-b border-stone-100 shadow-2xl z-50 overflow-y-auto max-h-[calc(100vh-80px)]">
+                    <div className="flex flex-col p-6 gap-2">
+                        <Link href="/" className="text-stone-700 hover:text-primary font-bold py-3 px-4 rounded-xl hover:bg-stone-50 transition-colors" onClick={() => setIsMenuOpen(false)}>{t.nav.home}</Link>
+                        <Link href="/products" className="text-stone-700 hover:text-primary font-bold py-3 px-4 rounded-xl hover:bg-stone-50 transition-colors" onClick={() => setIsMenuOpen(false)}>{t.nav.products}</Link>
+                        <Link href="/#videos" className="text-stone-700 hover:text-primary font-bold py-3 px-4 rounded-xl hover:bg-stone-50 transition-colors" onClick={() => setIsMenuOpen(false)}>{t.nav.videos}</Link>
+                        <Link href="/about" className="text-stone-700 hover:text-primary font-bold py-3 px-4 rounded-xl hover:bg-stone-50 transition-colors" onClick={() => setIsMenuOpen(false)}>{t.nav.about}</Link>
+                        <Link href="/contact" className="text-stone-700 hover:text-primary font-bold py-3 px-4 rounded-xl hover:bg-stone-50 transition-colors" onClick={() => setIsMenuOpen(false)}>{t.nav.contact}</Link>
+
+                        <div className="h-px bg-stone-100 my-2" />
+
+                        <Link href="/solutions" className="border-2 border-primary text-primary px-4 py-4 rounded-2xl font-bold text-center hover:bg-stone-50 transition-all text-lg mb-2" onClick={() => setIsMenuOpen(false)}>
+                            {t.nav.solutions}
+                        </Link>
+
+                        <Link href="/products" className="bg-primary text-white px-6 py-4 rounded-2xl font-bold text-center shadow-lg hover:bg-primary-hover active:scale-95 transition-all text-lg" onClick={() => setIsMenuOpen(false)}>
                             {t.nav.order}
                         </Link>
                     </div>
                 </div>
-            </div>
+            )}
         </nav>
     );
 }
