@@ -181,17 +181,34 @@ export default function AdminPage() {
             let finalVideoUrl = newVideo.videoUrl;
 
             if (!newVideo.isYouTube && videoFile) {
+                // 1. Get signature from our API
+                const signRes = await fetch("/api/upload/sign", { method: "POST" });
+                const signData = await signRes.json();
+
+                if (!signRes.ok) {
+                    throw new Error(signData.error || "Failed to get upload signature");
+                }
+
+                // 2. Upload directly to Cloudinary
                 const formData = new FormData();
                 formData.append("file", videoFile);
-                const uploadRes = await fetch("/api/upload", {
+                formData.append("api_key", signData.api_key);
+                formData.append("timestamp", signData.timestamp.toString());
+                formData.append("signature", signData.signature);
+                formData.append("folder", signData.folder);
+
+                const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${signData.cloud_name}/video/upload`;
+
+                const uploadRes = await fetch(cloudinaryUrl, {
                     method: "POST",
                     body: formData
                 });
+
                 const uploadData = await uploadRes.json();
                 if (uploadRes.ok) {
                     finalVideoUrl = uploadData.secure_url;
                 } else {
-                    alert("व्हिडिओ अपलोड अयशस्वी: " + (uploadData.error || "Unknown error"));
+                    alert("व्हिडिओ अपलोड अयशस्वी: " + (uploadData.error?.message || "Unknown error"));
                     setIsLoading(false);
                     return;
                 }
@@ -257,17 +274,34 @@ export default function AdminPage() {
             let finalImageUrl = newGuidance.image;
 
             if (cropImage) {
+                // 1. Get signature from our API
+                const signRes = await fetch("/api/upload/sign", { method: "POST" });
+                const signData = await signRes.json();
+
+                if (!signRes.ok) {
+                    throw new Error(signData.error || "Failed to get upload signature");
+                }
+
                 const formData = new FormData();
                 formData.append("file", cropImage);
-                const uploadRes = await fetch("/api/upload", {
+                formData.append("api_key", signData.api_key);
+                formData.append("timestamp", signData.timestamp.toString());
+                formData.append("signature", signData.signature);
+                formData.append("folder", signData.folder);
+
+                // Use 'image/upload' for photos
+                const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${signData.cloud_name}/image/upload`;
+
+                const uploadRes = await fetch(cloudinaryUrl, {
                     method: "POST",
                     body: formData
                 });
+
                 const uploadData = await uploadRes.json();
                 if (uploadRes.ok) {
                     finalImageUrl = uploadData.secure_url;
                 } else {
-                    alert("प्रतिमा अपलोड अयशस्वी: " + (uploadData.error || "Unknown error"));
+                    alert("प्रतिमा अपलोड अयशस्वी: " + (uploadData.error?.message || "Unknown error"));
                     setIsLoading(false);
                     return;
                 }
